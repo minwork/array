@@ -1,4 +1,6 @@
 # README
+## Installation
+`composer require minwork/array`
 ## What I need this library for?
 Wide range of advanced associative array manipulation methods, smoother transforming array of objects and usefull shortcuts for most common array operations.
 
