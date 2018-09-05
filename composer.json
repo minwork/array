@@ -1,0 +1,34 @@
+{
+	"name" : "minwork/array",
+	"description" : "Pack of advanced array functions - specifically for associative arrays and arrays of objects",
+	"type" : "library",
+	"keywords" : [
+		"array",
+		"helper",
+		"functions",
+		"methods",
+		"assoc",
+		"associative",
+		"objects",
+		"php 7",
+		"php 7.1"
+	],
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "Christopher Kalkhoff",
+			"email" : "krzysztof.kalkhoff@gmail.com",
+			"role" : "Founder"
+		}
+	],
+	"require" : {
+		"php" : ">=7.1"
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "^5.0"
+	},
+	"autoload" : {
+		"psr-4" : {
+			"Minwork\\Helper\\" : "src/"
+		}
+	}
+}
