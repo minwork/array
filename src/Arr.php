@@ -321,6 +321,27 @@ class Arr
     }
 
     /**
+     * Sort array of arrays using value specified by key(s) (can be nested)
+     *
+     * @param array $array Array of arrays
+     * @param $keys Keys in format specified by getKeysArray method
+     * @param bool $assoc If sorting should preserve main array keys (default: true)
+     * @return array Sorted array
+     * @see \Minwork\Helper\Arr::getKeysArray()
+     */
+    public static function sortByKeys(array $array, $keys, bool $assoc = true): array
+    {
+        $return = $array;
+        $method = $assoc ? 'uasort' : 'usort';
+
+        $method($return, function ($a, $b) use ($keys) {
+            return self::getNestedElement($a, $keys) <=> self::getNestedElement($b, $keys);
+        });
+
+        return $return;
+    }
+
+    /**
      * Check if array has specified keys
      *
      * @param array $array
