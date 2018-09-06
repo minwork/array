@@ -36,7 +36,7 @@ Yes, it is currently used in live project and works like a charm. Automated test
 
 # Detailed documentation
 ## Get keys array
-Transform variable into standarised array of keys
+*Transform variable into standarised array of keys*
 
 `Arr::getKeysArray($keys): array`
 
@@ -50,6 +50,7 @@ Possible input formats:
 
 `['key1', 'key2', 'key3']` - array with values representing key names
 
+Object with public properties
 ```
 object(stdClass) {
      ['prop1'] => 'key1',
@@ -57,22 +58,25 @@ object(stdClass) {
      ['prop3'] => 'key3',
 }
 ```
-Or object with public properties
 
 ## Get multidimensional array element
-Get nested element of an array or object implementing array access
+*Get nested element of an array or object implementing array access*
 
 `Arr::getNestedElement($array, $keys, $default = null)`
 
 `array|\ArrayAccess $array` - Array or object implementing array access to get element from
+
 `mixed $keys` - Keys indicator (for details on possible keys format check `getKeysArray` method)
+
 `mixed $default` - Default value if element does not exists
 
 ## Set multidimensional array element
-Set nested element of an array
+*Set nested element of an array*
 
 `Arr::setNestedElement(array &$array, $keys, $value)`
 
 `array $array` - Reference to an array where element be created or updated
+
 `mixed $keys` - Keys indicator (for details on possible keys format check `getKeysArray` method)
+
 `mixed $value` - Value to set for element indicated by keys
