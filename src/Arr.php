@@ -71,7 +71,7 @@ class Arr
     /**
      * Handle multidimensional array access using array of keys (get or set depending on $value argument)
      *
-     * @see Arr::getKeysArray
+     * @see \Minwork\Helper\Arr::getKeysArray
      * @param array $array
      * @param mixed $keys
      *            Keys needed to access desired array element (for possible formats look at getKeysArray method)
@@ -102,6 +102,21 @@ class Arr
             $tmp = $value;
             return true;
         }
+    }
+    
+    /**
+     * Alias to handleNestedElement method, used to set element value in multidimensional array
+     * 
+     * @see \Minwork\Helper\Arr::handleNestedElement
+     * @see \Minwork\Helper\Arr::getKeysArray
+     * @param array $array
+     * @param mixed $keys Keys needed to access desired array element (for possible formats look at getKeysArray method)
+     * @param mixed $value Value to set
+     * @return NULL|boolean|mixed
+     */
+    public static function setNestedElement(array &$array, $keys, $value)
+    {
+        return self::handleNestedElement($array, $keys, $value);
     }
 
     /**
