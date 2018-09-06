@@ -1,3 +1,13 @@
+ # Table of Contents
+   * [Installation](#installation)
+   * [What do I need this library for?](#what-do-i-need-this-library-for)
+   * [How it works?](#how-it-works)
+      * [What do I need to use it?](#what-do-i-need-to-use-it)
+      * [Is it tested?](#is-it-tested)
+   * [Detailed documentation](#detailed-documentation)
+      * [Get keys array](#get-keys-array)
+      * [Get multidimensional array element](#get-multidimensional-array-element)
+      * [Set multidimensional array element](#set-multidimensional-array-element)
 
 
 # Installation
