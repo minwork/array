@@ -416,6 +416,53 @@ class Arr
         
         return $return;
     }
+
+    /**
+     * Group array of arrays by value of one key.<br><br>
+     * <u>Example</u><br><br>
+     * <pre>
+     * Arr::group([
+     *   'a' => [ 'key1' => 'test1', 'key2' => 1 ],
+     *   'b' => [ 'key1' => 'test1', 'key2' => 2 ],
+     *   2 => [ 'key1' => 'test2', 'key2' => 3 ]
+     * ], 'key1')
+     * </pre>
+     * will produce
+     * <pre>
+     * [
+     *   'test1' => [
+     *     'a' => [ 'key1' => 'test1', 'key2' => 1 ],
+     *     'b' => [ 'key1' => 'test1', 'key2' => 2 ]
+     *   ],
+     *   'test2' => [
+     *     2 => [ 'key1' => 'test2', 'key2' => 3 ]
+     *   ],
+     * ]
+     * </pre>
+     * <br>
+     * If key does not exists in one of the arrays, this array will be excluded from result
+     * @param array $array Array of arrays
+     * @param string|int $key Key on which to group arrays
+     * @return array
+     */
+    public static function group(array $array, $key): array
+    {
+        $return = [];
+
+        // If not array of arrays return untouched
+        if (! self::isArrayOfArrays($array)) {
+            return $array;
+        }
+
+        foreach ($array as $k => $v) {
+            if (array_key_exists($key, $v)) {
+                $return[$v[$key]][$k] = $v;
+            }
+
+        }
+
+        return $return;
+    }
     
     /**
      * Group list of objects by value returned from supplied method.<br><br>
