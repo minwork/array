@@ -227,6 +227,10 @@ class Arr
      */
     public static function isAssoc(array $array, bool $strict = false): bool
     {
+        if (empty($array)) {
+            return false;
+        }
+        
         if ($strict) {
             return array_keys($array) !== range(0, count($array) - 1);
         } else {
