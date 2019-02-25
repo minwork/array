@@ -1,17 +1,16 @@
 {
 	"name" : "minwork/array",
-	"description" : "Pack of advanced array functions - specifically for associative arrays and arrays of objects",
+	"description" : "Advanced array validation, manipulation and processing - specially designed for arrays of objects as well as associative and multidimensional arrays",
 	"type" : "library",
 	"keywords" : [
 		"array",
-		"helper",
-		"functions",
-		"methods",
+		"arrays",
 		"assoc",
-		"associative",
+		"multidimensional",
 		"objects",
-		"php 7",
-		"php 7.1"
+		"helper",
+		"associative",
+		"php 7"
 	],
 	"license" : "MIT",
 	"authors" : [{
@@ -22,9 +21,9 @@
 	],
 	"require" : {
 		"php" : ">=7.1"
-	},
+    },
 	"require-dev" : {
-		"phpunit/phpunit" : "^5.0"
+		"phpunit/phpunit" : "^7.0"
 	},
 	"autoload" : {
 		"psr-4" : {
