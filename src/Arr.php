@@ -5,16 +5,30 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace Minwork\Helper;
 
 /**
  * Pack of advanced array functions - specifically for associative arrays and arrays of objects
  *
  * @author Krzysztof Kalkhoff
- *        
+ *
  */
 class Arr
 {
+    // Flags
+
+    const FORCE_ARRAY_ALL = 1;
+    const FORCE_ARRAY_PRESERVE_NULL = 2;
+    const FORCE_ARRAY_PRESERVE_OBJECTS = 4;
+    const FORCE_ARRAY_PRESERVE_ARRAY_OBJECTS = 8;
+
+    /*--------------------------------------------------------------------------------------*\
+     |                                        Common                                        |
+     |    ******************************************************************************    |
+     | Basic operations used by other methods                                               |
+    \*--------------------------------------------------------------------------------------*/
+
 
     /**
      * Convert any var matching exmaples showed below into array of keys
@@ -25,10 +39,6 @@ class Arr
      *            'key'
      *            'key1.key2.key3'
      *            ['key1', 'key2', 'key3']
-     *            object(stdClass) {
-     *            ['prop1']=> 'key1',
-     *            ['prop2']=> 'key2',
-     *            }
      *            </pre>
      * @return array
      */
@@ -37,7 +47,32 @@ class Arr
         if (is_string($keys)) {
             return empty($keys) ? [] : explode('.', $keys);
         }
-        return is_null($keys) ? [] : array_values(self::forceArray($keys));
+        return is_null($keys) ? [] : array_filter(array_values(self::forceArray($keys)), function ($value) {
+            return $value !== null && $value !== '' && (is_string($value) || is_int($value));
+        });
+    }
+
+    /**
+     * Check if array has specified keys
+     *
+     * @param array $array
+     * @param mixed $keys
+     *            Look at getKeysArray function
+     * @see \Minwork\Helper\Arr::getKeysArray()
+     * @param bool $strict
+     *            If array must have every key
+     * @return bool
+     */
+    public static function hasKeys(array $array, $keys, bool $strict = false): bool
+    {
+        foreach (self::getKeysArray($keys) as $key) {
+            if (array_key_exists($key, $array) && !$strict) {
+                return true;
+            } elseif (!array_key_exists($key, $array) && $strict) {
+                return false;
+            }
+        }
+        return $strict ? true : false;
     }
 
     /**
@@ -56,7 +91,7 @@ class Arr
     {
         $keys = self::getKeysArray($keys);
         foreach ($keys as $key) {
-            if (! is_array($array) && ! $array instanceof \ArrayAccess) {
+            if (!is_array($array) && !$array instanceof \ArrayAccess) {
                 return $default;
             }
             if (($array instanceof \ArrayAccess && $array->offsetExists($key)) || array_key_exists($key, $array)) {
@@ -69,131 +104,66 @@ class Arr
     }
 
     /**
-     * Handle multidimensional array access using array of keys (get or set depending on $value argument)
+     * Set array element specified by keys to desired value (create missing keys if necessary)
      *
-     * @see \Minwork\Helper\Arr::getKeysArray
-     * @param array $array
-     * @param mixed $keys
-     *            Keys needed to access desired array element (for possible formats look at getKeysArray method)
-     * @param mixed $value
-     *            Value to set (if null this function will work as get)
-     */
-    public static function handleNestedElement(array &$array, $keys, $value = null)
-    {
-        $tmp = &$array;
-        $keys = self::getKeysArray($keys);
-        while (count($keys) > 0) {
-            $key = array_shift($keys);
-            if (! is_array($tmp)) {
-                if (is_null($value)) {
-                    return null;
-                } else {
-                    $tmp = [];
-                }
-            }
-            if (! isset($tmp[$key]) && is_null($value)) {
-                return null;
-            }
-            $tmp = &$tmp[$key];
-        }
-        if (is_null($value)) {
-            return $tmp;
-        } else {
-            $tmp = $value;
-            return true;
-        }
-    }
-    
-    /**
-     * Alias to handleNestedElement method, used to set element value in multidimensional array
-     * 
-     * @see \Minwork\Helper\Arr::handleNestedElement
      * @see \Minwork\Helper\Arr::getKeysArray
      * @param array $array
      * @param mixed $keys Keys needed to access desired array element (for possible formats look at getKeysArray method)
      * @param mixed $value Value to set
-     * @return NULL|boolean|mixed
+     * @return array Copy of an array with element set
      */
-    public static function setNestedElement(array &$array, $keys, $value)
+    public static function setNestedElement(array $array, $keys, $value): array
     {
-        return self::handleNestedElement($array, $keys, $value);
-    }
+        $result = self::clone($array);
+        $keysArray = self::getKeysArray($keys);
+        $tmp = &$result;
 
-    /**
-     * Make variable an array
-     *
-     * @param mixed $var
-     * @return array
-     */
-    public static function forceArray($var): array
-    {
-        if (! is_array($var)) {
-            if (is_object($var)) {
-                return $var instanceof \ArrayAccess ? $var : [
-                    $var
-                ];
-            } else {
-                return [
-                    $var
-                ];
+        while (count($keysArray) > 0) {
+            $key = array_shift($keysArray);
+            if (!is_array($tmp)) {
+                $tmp = [];
             }
+            $tmp = &$tmp[$key];
         }
-        return $var;
+        $tmp = $value;
+
+        return $result;
     }
 
+    /*--------------------------------------------------------------------------------------*\
+     |                                      Validation                                      |
+     |    ******************************************************************************    |
+     | Flexible check method and various specific checks                                    |
+    \*--------------------------------------------------------------------------------------*/
+
     /**
-     * Clone array with every object inside it
-     *
+     * Check if every element of an array meets specified condition
      * @param array $array
-     * @return array
+     * @param mixed|callable $condition Can be either single value to compare every array value to or callable (which takes value as first argument and key as second) that performs check
+     * @param bool $strict In case $condition is callable check if it result is exactly <code>true</code> otheriwse if it is equal both by value and type to supplied $condition
+     * @return bool
      */
-    public static function clone(array $array): array
+    public static function check(array $array, $condition, bool $strict = false): bool
     {
-        $cloned = [];
         foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                $cloned[$key] = self::clone($value);
-            } elseif (is_object($value)) {
-                $cloned[$key] = clone $value;
+            if (is_callable($condition)) {
+                try {
+                    $result = call_user_func($condition, $value, $key);
+                } catch (\Throwable $e) {
+                    $result = call_user_func($condition, $value);
+                }
+
+                if ($strict ? $result !== true : !$result) {
+                    return false;
+                }
             } else {
-                $cloned[$key] = $value;
+                if ($strict ? $value !== $condition : $value != $condition) {
+                    return false;
+                }
             }
         }
-        return $cloned;
-    }
 
-    /**
-     * Get random array value
-     *
-     * @param array $array
-     * @return mixed
-     */
-    public static function random(array $array, int $count = 1)
-    {
-        if (empty($array)) {
-            return null;
-        }
-        return $count == 1 ? $array[array_rand($array)] : array_intersect_key($array, array_flip(array_rand($array, $count) ?? []));
-    }
-    
-    /**
-     * Shuffle array preserving keys and returning new shuffled array
-     *  
-     * @param array $array
-     * @return array
-     */
-    public static function shuffle(array $array): array
-    {
-        $return = [];
-        $keys = array_keys($array);
-        
-        shuffle($keys);
-        
-        foreach ($keys as $key) {
-            $return[$key] = $array[$key];
-        }
-        
-        return $return;
+        return true;
     }
 
     /**
@@ -206,14 +176,14 @@ class Arr
     {
         if (is_array($array)) {
             foreach ($array as $v) {
-                if (! self::isEmpty($v)) {
+                if (!self::isEmpty($v)) {
                     return false;
                 }
             }
-        } elseif (! empty($array)) {
+        } elseif (!empty($array)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -230,12 +200,12 @@ class Arr
         if (empty($array)) {
             return false;
         }
-        
+
         if ($strict) {
             return array_keys($array) !== range(0, count($array) - 1);
         } else {
             foreach (array_keys($array) as $key) {
-                if (! is_int($key)) {
+                if (!is_int($key)) {
                     return true;
                 }
             }
@@ -251,18 +221,28 @@ class Arr
      */
     public static function isNumeric(array $array): bool
     {
-        return ctype_digit(implode('', $array));
+        return self::check($array, 'is_numeric');
     }
 
     /**
      * Check if array values are unique
      *
      * @param array $array
+     * @param bool $strict If it should also compare type
      * @return bool
      */
-    public static function isUnique(array $array): bool
+    public static function isUnique(array $array, bool $strict = false): bool
     {
-        return array_unique(array_values($array)) === array_values($array);
+        if ($strict) {
+            foreach ($array as $key => $value) {
+                $keys = array_keys($array, $value, true);
+                if (count($keys) > 1 || $keys[0] !== $key) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return array_unique(array_values($array), SORT_REGULAR) === array_values($array);
     }
 
     /**
@@ -273,12 +253,65 @@ class Arr
      */
     public static function isArrayOfArrays(array $array): bool
     {
+        // If empty array
+        if (count($array) === 0) {
+            return false;
+        }
         foreach ($array as $element) {
-            if (! is_array($element)) {
+            if (!is_array($element)) {
                 return false;
             }
         }
         return true;
+    }
+
+    /*--------------------------------------------------------------------------------------*\
+     |                                      Manipulation                                    |
+     |    ******************************************************************************    |
+     | Well known methods (like map, filter, group etc.) in 2 variants: regular and objects |
+    \*--------------------------------------------------------------------------------------*/
+
+    /**
+     * Applies a callback to the elements of given array
+     *
+     * @param callable $callback Callback to run for each element of array (arguments: key, value)
+     * @param array $array
+     * @return array
+     */
+    public static function map(callable $callback, array $array): array
+    {
+        $return = [];
+
+        foreach ($array as $key => $value) {
+            $return[$key] = $callback($key, $value);
+        }
+
+        return $return;
+    }
+
+    /**
+     * Overwrite value of every object in $objects array with return value from object method
+     *
+     * This method preserve values other than objects leaving them intact
+     *
+     * @param array $objects Array of objects
+     * @param string $method Object method name
+     * @param mixed ...$args Method arguments
+     * @return array
+     */
+    public static function mapObjects(array $objects, string $method, ...$args): array
+    {
+        $return = [];
+
+        foreach ($objects as $key => $value) {
+            if (is_object($value)) {
+                $return[$key] = $value->$method(...$args);
+            } else {
+                $return[$key] = $value;
+            }
+        }
+
+        return $return;
     }
 
     /**
@@ -287,8 +320,9 @@ class Arr
      * @param array $array
      * @param mixed $keys
      *            Look at getKeysArray function
-     * @see \Minwork\Helper\Arr::getKeysArray()
+     * @param bool $exclude
      * @return array
+     * @see \Minwork\Helper\Arr::getKeysArray()
      */
     public static function filterByKeys(array $array, $keys, bool $exclude = false): array
     {
@@ -301,123 +335,32 @@ class Arr
         }
         return $exclude ? array_diff_key($array, array_flip($keysArray)) : array_intersect_key($array, array_flip($keysArray));
     }
-    
+
     /**
-     * Order associative array by supplied keys order.
-     * Keys that are not present in $keys param will be appended to the end of an array preserving supplied order.
-     * @param array $array
-     * @param mixed $keys
-     *            Look at getKeysArray function
-     * @see \Minwork\Helper\Arr::getKeysArray()
+     * Filter objects array using supplied method name.<br>
+     * Discard any object which method return value convertable to false
+     *
+     * This method also filter values other than objects by standard boolean comparison
+     *
+     * @param array $objects Array of objects
+     * @param string $method Object method name
+     * @param mixed ...$args Method arguments
      * @return array
      */
-    public static function orderByKeys(array $array, $keys): array
+    public static function filterObjects(array $objects, string $method, ...$args): array
     {
         $return = [];
-        
-        foreach (self::getKeysArray($keys) as $key) {
-            if (array_key_exists($key, $array)) {
-                $return[$key] = $array[$key];
+
+        foreach ($objects as $key => $value) {
+            if (is_object($value)) {
+                if ($value->$method(...$args)) {
+                    $return[$key] = $value;
+                }
+            } elseif ($value) {
+                $return[$key] = $value;
             }
         }
-        
-        return array_merge($return, self::filterByKeys($array, $keys, true));
-    }
 
-    /**
-     * Sort array of arrays using value specified by key(s) (can be nested)
-     *
-     * @param array $array Array of arrays
-     * @param $keys Keys in format specified by getKeysArray method
-     * @param bool $assoc If sorting should preserve main array keys (default: true)
-     * @return array Sorted array
-     * @see \Minwork\Helper\Arr::getKeysArray()
-     */
-    public static function sortByKeys(array $array, $keys, bool $assoc = true): array
-    {
-        $return = $array;
-        $method = $assoc ? 'uasort' : 'usort';
-
-        $method($return, function ($a, $b) use ($keys) {
-            return self::getNestedElement($a, $keys) <=> self::getNestedElement($b, $keys);
-        });
-
-        return $return;
-    }
-
-    /**
-     * Check if array has specified keys
-     *
-     * @param array $array
-     * @param mixed $keys
-     *            Look at getKeysArray function
-     * @see \Minwork\Helper\Arr::getKeysArray()
-     * @param bool $strict
-     *            If array must have every key
-     * @return bool
-     */
-    public static function hasKeys(array $array, $keys, bool $strict = false): bool
-    {
-        foreach (self::getKeysArray($keys) as $key) {
-            if (array_key_exists($key, $array) && ! $strict) {
-                return true;
-            } elseif (! array_key_exists($key, $array) && $strict) {
-                return false;
-            }
-        }
-        return $strict ? true : false;
-    }
-
-    /**
-     * Get even array values
-     *
-     * @param array $array
-     * @return array
-     */
-    public static function evenValues(array $array): array
-    {
-        $actualValues = array_values($array);
-        $values = array();
-        for ($i = 0; $i <= count($array) - 1; $i += 2) {
-            $values[] = $actualValues[$i];
-        }
-        return $values;
-    }
-
-    /**
-     * Get odd array values
-     *
-     * @param array $array
-     * @return array
-     */
-    public static function oddValues(array $array): array
-    {
-        $actualValues = array_values($array);
-        $values = array();
-        if (count($actualValues) > 1) {
-            for ($i = 1; $i <= count($array) - 1; $i += 2) {
-                $values[] = $actualValues[$i];
-            }
-        }
-        return $values;
-    }
-
-    /**
-     * Sum associative arrays by their keys into one array
-     * 
-     * @param array ...$arrays Can be either list of an arrays or single array of arrays
-     * @return array
-     */
-    public static function sum(array ...$arrays): array
-    {
-        $return = [];
-        
-        foreach ($arrays as $array) {
-            foreach ($array as $key => $value) {
-                $return[$key] = ($return[$key] ?? 0) + floatval($value);
-            }
-        }
-        
         return $return;
     }
 
@@ -454,7 +397,7 @@ class Arr
         $return = [];
 
         // If not array of arrays return untouched
-        if (! self::isArrayOfArrays($array)) {
+        if (!self::isArrayOfArrays($array)) {
             return $array;
         }
 
@@ -467,18 +410,14 @@ class Arr
 
         return $return;
     }
-    
+
     /**
-     * Group list of objects by value returned from supplied method.<br><br>
+     * Group list of objects by value returned from specified method.<br><br>
      * <u>Example</u><br>
      * Let's say we have a list of Foo objects [Foo1, Foo2, Foo3] and all of them have method bar which return string.<br>
      * If method bar return duplicate strings then all keys will contain list of corresponding objects like this:<br>
      * <pre>
      * ['string1' => [Foo1], 'string2' => [Foo2, Foo3]]
-     * </pre>
-     * If flat param is equal to <i>true</i> then every object returning duplicate key will replace previous one, like:<br>
-     * <pre>
-     * ['string1' => Foo1, 'string2' => Foo3]
      * </pre>
      *
      * @param array $objects Array of objects
@@ -489,98 +428,84 @@ class Arr
     public static function groupObjects(array $objects, string $method, ...$args): array
     {
         $return = [];
-        
-        foreach ($objects as $object) {
+
+        foreach ($objects as $key => $object) {
             if (is_object($object)) {
-                $key = $object->$method(...$args);
-                if (! array_key_exists($key, $return)) {
-                    $return[$key] = [
-                        $object
-                    ];
-                } else {
-                    $return[$key][] = $object;
-                }
+                $return[$object->$method(...$args)][$key] = $object;
             }
         }
-        
+
         return $return;
     }
 
     /**
-     * Filter objects array using supplied method name.<br>
-     * Discard any object which method return value convertable to false
-     * 
-     * This method also filter values other than objects by standard boolean comparison
-     * 
-     * @param array $objects Array of objects
-     * @param string $method Object method name
-     * @param mixed ...$args Method arguments
-     * @return array
-     */
-    public static function filterObjects(array $objects, string $method, ...$args): array
-    {
-        $return = [];
-        
-        foreach ($objects as $key => $value) {
-            if (is_object($value)) {
-                if ($value->$method(...$args)) {
-                    $return[$key] = $value;
-                }
-            } elseif ($value) {
-                $return[$key] = $value;
-            }
-        }
-        
-        return $return;
-    }
-    
-    /**
-     * Applies a callback to the elements of given array
-     * 
-     * @param callable $function Callback to run for each element of array (arguments: key, value) 
+     * Order associative array by supplied keys order.
+     * Keys that are not present in $keys param will be appended to the end of an array preserving supplied order.
      * @param array $array
+     * @param mixed $keys Look at getKeysArray function
+     * @param bool $appendUnmatched If values not matched by supplied keys should be appended to the end of an array
+     * @see \Minwork\Helper\Arr::getKeysArray()
      * @return array
      */
-    public static function map(callable $callback, array $array): array
+    public static function orderByKeys(array $array, $keys, bool $appendUnmatched = true): array
     {
         $return = [];
-        
-        foreach ($array as $key => $value) {
-            $return[$key] = $callback($key, $value);
-        }
-        
-        return $return;
-    }
-    
-    /**
-     * Overwrite value of every object in $objects array with return value from object method
-     * 
-     * This method preserve values other than objects leaving them intact
-     * 
-     * @param array $objects Array of objects
-     * @param string $method Object method name
-     * @param mixed ...$args Method arguments
-     * @return array
-     */
-    public static function mapObjects(array $objects, string $method, ...$args): array
-    {
-        $return = [];
-        
-        foreach ($objects as $key => $value) {
-            if (is_object($value)) {
-                $return[$key] = $value->$method(...$args);
-            } else {
-                $return[$key] = $value;
+
+        foreach (self::getKeysArray($keys) as $key) {
+            if (array_key_exists($key, $array)) {
+                $return[$key] = $array[$key];
             }
         }
-        
+
+        return $appendUnmatched ? $return + self::filterByKeys($array, $keys, true) : $return;
+    }
+
+    /**
+     * Sort array of arrays using value specified by key(s) (can be nested)
+     *
+     * @param array $array Array of arrays
+     * @param mixed $keys Keys in format specified by getKeysArray method
+     * @param bool $assoc If sorting should preserve main array keys (default: true)
+     * @return array Sorted array
+     * @see \Minwork\Helper\Arr::getKeysArray()
+     */
+    public static function sortByKeys(array $array, $keys = null, bool $assoc = true): array
+    {
+        $return = $array;
+        $method = $assoc ? 'uasort' : 'usort';
+
+        $method($return, function ($a, $b) use ($keys) {
+            return self::getNestedElement($a, $keys) <=> self::getNestedElement($b, $keys);
+        });
+
         return $return;
     }
-    
+
+    /**
+     * Sum associative arrays by their keys into one array
+     *
+     * @param array ...$arrays Can be either list of an arrays or single array of arrays
+     * @return array
+     */
+    public static function sum(array ...$arrays): array
+    {
+        $return = [];
+
+        foreach ($arrays as $array) {
+            foreach ($array as $key => $value) {
+                $return[$key] = ($return[$key] ?? 0) + floatval($value);
+            }
+        }
+
+        return $return;
+    }
+
     /**
      * Differentiate two or more arrays of objects
-     * 
-     * @param array ...$objects
+     *
+     * @param array $array1
+     * @param array $array2
+     * @param array[] $arrays
      * @return array
      */
     public static function diffObjects(array $array1, array $array2, array ...$arrays): array
@@ -590,12 +515,48 @@ class Arr
         array_push($arguments, function ($obj1, $obj2) {
             return strcmp(spl_object_hash($obj1), spl_object_hash($obj2));
         });
-        
+
         return array_udiff(...$arguments);
     }
 
     /**
-     * Flatten single element arrays<br>
+     * Flatten array of arrays to a n-depth array
+     *
+     * @param array $array
+     * @param int|null $depth How many levels of nesting will be flatten. By default every nested array will be flatten.
+     * @param bool $assoc If this param is set to true, this method will try to preserve as much string keys as possible.
+     * In case of conflicting key name, value will be added with automatic numeric key.<br>
+     * <br>
+     * <i>Warning:</i> This method may produce unexpected results when array has numeric keys and $assoc param is set to true
+     * @return array
+     */
+    public static function flatten(array $array, ?int $depth = null, bool $assoc = false): array
+    {
+        $return = [];
+
+        $addElement = function ($key, $value) use (&$return, $assoc) {
+            if (!$assoc || array_key_exists($key, $return)) {
+                $return[] = $value;
+            } else {
+                $return[$key] = $value;
+            }
+        };
+
+        foreach ($array as $key => $value) {
+            if (is_array($value) && (is_null($depth) || $depth >= 1)) {
+                foreach (self::flatten($value, is_null($depth) ? $depth : $depth - 1, $assoc) as $k => $v) {
+                    $addElement($k, $v);
+                }
+            } else {
+                $addElement($key, $value);
+            }
+        }
+
+        return $return;
+    }
+
+    /**
+     * Flatten single element arrays (also nested single element arrays)<br>
      * Let's say we have an array like this:<br>
      * <pre>
      * ['foo' => ['bar'], 'foo2' => ['bar2', 'bar3' => ['foo4']]
@@ -604,14 +565,14 @@ class Arr
      * <pre>
      * ['foo' => 'bar', 'foo2' => ['bar2', 'bar3' => 'foo4']]
      * </pre>
-     * 
+     *
      * @param array $array
      * @return array
      */
     public static function flattenSingle(array $array): array
     {
         $return = [];
-        
+
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 if (count($value) === 1) {
@@ -623,41 +584,150 @@ class Arr
                 $return[$key] = $value;
             }
         }
-        
+
         return $return;
     }
-    
+
+    /*--------------------------------------------------------------------------------------*\
+     |                                        Utility                                       |
+     |    ******************************************************************************    |
+     | Other useful methods                                                                 |
+    \*--------------------------------------------------------------------------------------*/
+
     /**
-     * Flatten array of arrays to single level array
-     * 
-     * @param array $array
-     * @param int|null $depth How many levels of nesting will be flatten. By default every nested array will be flatten.
-     * @param bool $assoc If this param is set to true, this method will try to preserve as much string keys as possible. 
-     * In case of conflicting key name, value will be merged with automatic numeric key.
+     * Make variable an array (according to flag settings)
+     *
+     * @param mixed $var
+     * @param int $flag Set flag(s) to preserve specific values from being converted to array
      * @return array
      */
-    public static function flatten(array $array, ?int $depth = null, bool $assoc = false): array
+    public static function forceArray($var, int $flag = self::FORCE_ARRAY_ALL)
     {
-        $return = [];
-        
-        $addElement = function ($key, $value) use (&$return, $assoc) {
-            if (! $assoc || array_key_exists($key, $return)) {
-                $return[] = $value;
-            } else {
-                $return[$key] = $value;
+        if (!is_array($var)) {
+            if ($flag & self::FORCE_ARRAY_ALL) {
+                return [$var];
             }
-        };
-        
-        foreach ($array as $key => $value) {
-            if (is_array($value) && (is_null($depth) || $depth >= 1)) {
-                foreach (self::flatten($value, is_null($depth) ? $depth : $depth - 1, $assoc) as $k => $v) {
-                    $addElement($k, $v);
+            if (is_object($var)) {
+                if ($flag & self::FORCE_ARRAY_PRESERVE_OBJECTS) {
+                    return $var;
                 }
+                if (($flag & self::FORCE_ARRAY_PRESERVE_ARRAY_OBJECTS) && $var instanceof \ArrayAccess) {
+                    return $var;
+                }
+            }
+            if (is_null($var) && ($flag & self::FORCE_ARRAY_PRESERVE_NULL)) {
+                return $var;
+            }
+
+            return [$var];
+        }
+        return $var;
+    }
+
+
+    /**
+     * Clone array with every object inside it
+     *
+     * @param array $array
+     * @return array
+     */
+    public static function clone(array $array): array
+    {
+        $cloned = [];
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $cloned[$key] = self::clone($value);
+            } elseif (is_object($value)) {
+                $cloned[$key] = clone $value;
             } else {
-                $addElement($key, $value);
+                $cloned[$key] = $value;
             }
         }
-        
+        return $cloned;
+    }
+
+    /**
+     * Get random array value<br>
+     *
+     * @param array $array
+     * @param int $count If equal to 1 than directly returns value or array of values otherwise
+     * @throws \InvalidArgumentException
+     * @return mixed
+     */
+    public static function random(array $array, int $count = 1)
+    {
+        if (empty($array)) {
+            return null;
+        }
+
+        if ($count > ($arrayCount = count($array)) || $count < 1) {
+            throw new \InvalidArgumentException("Count must be a number between 1 and $arrayCount");
+        }
+
+        return $count == 1 ? $array[array_rand($array)] : array_intersect_key($array, array_flip(array_rand($array, $count) ?? []));
+    }
+
+    /**
+     * Shuffle array preserving keys and returning new shuffled array
+     *
+     * @param array $array
+     * @return array
+     */
+    public static function shuffle(array $array): array
+    {
+        $return = [];
+        $keys = array_keys($array);
+
+        shuffle($keys);
+
+        foreach ($keys as $key) {
+            $return[$key] = $array[$key];
+        }
+
         return $return;
     }
+
+    /**
+     * Gets array elements which index match condition $An + $B (preserving original keys)
+     *
+     * @see \Minwork\Helper\Arr::even()
+     * @see \Minwork\Helper\Arr::odd()
+     * @param array $array
+     * @param int $A
+     * @param int $B
+     * @return array
+     */
+    public static function nth(array $array, int $A = 1, int $B = 0): array
+    {
+        $keys = [];
+
+        for ($i = $B; $i < count($array); $i += $A) {
+            $keys[] = $i;
+        }
+        return self::filterByKeys($array, self::filterByKeys(array_keys($array), $keys));
+    }
+
+    /**
+     * Get even array values - alias for <i>nth</i> method with $A = 2
+     *
+     * @param array $array
+     * @return array
+     */
+    public static function even(array $array): array
+    {
+        return self::nth($array, 2);
+    }
+
+    /**
+     * Get odd array values - alias for <i>nth</i> method with $A = 2 and $B = 1
+     *
+     * @param array $array
+     * @return array
+     */
+    public static function odd(array $array): array
+    {
+        return self::nth($array, 2, 1);
+    }
+
+
 }
