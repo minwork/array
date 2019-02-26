@@ -31,15 +31,16 @@ class Arr
 
 
     /**
-     * Convert any var matching exmaples showed below into array of keys
+     * Convert variable into normalized array of keys<br>
+     * <br>
+     * Transforms 'key1.key2.key3' strings into ['key1','key2','key3']<br>
+     * <br>
+     * When array is supplied, this function preserve only not empty strings and integers<br>
+     * <pre>
+     * ['', 'test', 5.5, null, 0] -> ['test', 0]
+     * </pre>
      *
      * @param mixed $keys
-     *            <pre>
-     *            0
-     *            'key'
-     *            'key1.key2.key3'
-     *            ['key1', 'key2', 'key3']
-     *            </pre>
      * @return array
      */
     public static function getKeysArray($keys): array
@@ -57,11 +58,11 @@ class Arr
      *
      * @param array $array
      * @param mixed $keys
-     *            Look at getKeysArray function
-     * @see \Minwork\Helper\Arr::getKeysArray()
+     *            See getKeysArray method
      * @param bool $strict
-     *            If array must have every key
+     *            If array must have all of specified keys
      * @return bool
+     * @see \Minwork\Helper\Arr::getKeysArray()
      */
     public static function hasKeys(array $array, $keys, bool $strict = false): bool
     {
@@ -81,11 +82,11 @@ class Arr
      * @param array|\ArrayAccess $array
      *            Array or object implementing array access to get element from
      * @param mixed $keys
-     *            Keys indicator
+     *            See getKeysArray method
      * @param mixed $default
      *            Default value if element was not found
-     * @see Arr::getKeysArray
      * @return null|mixed
+     * @see \Minwork\Helper\Arr::getKeysArray()
      */
     public static function getNestedElement($array, $keys, $default = null)
     {
@@ -104,13 +105,14 @@ class Arr
     }
 
     /**
-     * Set array element specified by keys to desired value (create missing keys if necessary)
+     * Set array element specified by keys to the desired value (create missing keys if necessary)
      *
      * @see \Minwork\Helper\Arr::getKeysArray
      * @param array $array
-     * @param mixed $keys Keys needed to access desired array element (for possible formats look at getKeysArray method)
+     * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
      * @param mixed $value Value to set
      * @return array Copy of an array with element set
+     * @see \Minwork\Helper\Arr::getKeysArray()
      */
     public static function setNestedElement(array $array, $keys, $value): array
     {
@@ -138,9 +140,10 @@ class Arr
 
     /**
      * Check if every element of an array meets specified condition
+     *
      * @param array $array
      * @param mixed|callable $condition Can be either single value to compare every array value to or callable (which takes value as first argument and key as second) that performs check
-     * @param bool $strict In case $condition is callable check if it result is exactly <code>true</code> otheriwse if it is equal both by value and type to supplied $condition
+     * @param bool $strict In case $condition is callable check if it result is exactly <code>true</code> otherwise if it is equal both by value and type to supplied $condition
      * @return bool
      */
     public static function check(array $array, $condition, bool $strict = false): bool
@@ -290,9 +293,9 @@ class Arr
     }
 
     /**
-     * Overwrite value of every object in $objects array with return value from object method
+     * Map array of object to values returned from objects method
      *
-     * This method preserve values other than objects leaving them intact
+     * This method leaves values other than objects intact
      *
      * @param array $objects Array of objects
      * @param string $method Object method name
@@ -315,12 +318,11 @@ class Arr
     }
 
     /**
-     * Filter array by preserving only those which keys are present in $keys expression
+     * Filter array values by preserving only those which keys are present in array obtained from $keys variable
      *
      * @param array $array
-     * @param mixed $keys
-     *            Look at getKeysArray function
-     * @param bool $exclude
+     * @param mixed $keys See getKeysArray function
+     * @param bool $exclude If values matching $keys should be excluded from returned array
      * @return array
      * @see \Minwork\Helper\Arr::getKeysArray()
      */
@@ -337,9 +339,8 @@ class Arr
     }
 
     /**
-     * Filter objects array using supplied method name.<br>
-     * Discard any object which method return value convertable to false
-     *
+     * Filter objects array using return value of specified method.<br>
+     * <br>
      * This method also filter values other than objects by standard boolean comparison
      *
      * @param array $objects Array of objects
@@ -365,7 +366,8 @@ class Arr
     }
 
     /**
-     * Group array of arrays by value of one key.<br><br>
+     * Group array of arrays by value of element with specified key<br>
+     * <br>
      * <u>Example</u><br><br>
      * <pre>
      * Arr::group([
@@ -412,7 +414,8 @@ class Arr
     }
 
     /**
-     * Group list of objects by value returned from specified method.<br><br>
+     * Group array of objects by value returned from specified method<br>
+     * <br>
      * <u>Example</u><br>
      * Let's say we have a list of Foo objects [Foo1, Foo2, Foo3] and all of them have method bar which return string.<br>
      * If method bar return duplicate strings then all keys will contain list of corresponding objects like this:<br>
@@ -439,10 +442,10 @@ class Arr
     }
 
     /**
-     * Order associative array by supplied keys order.
+     * Order associative array according to supplied keys order
      * Keys that are not present in $keys param will be appended to the end of an array preserving supplied order.
      * @param array $array
-     * @param mixed $keys Look at getKeysArray function
+     * @param mixed $keys See getKeysArray method
      * @param bool $appendUnmatched If values not matched by supplied keys should be appended to the end of an array
      * @see \Minwork\Helper\Arr::getKeysArray()
      * @return array
@@ -461,10 +464,10 @@ class Arr
     }
 
     /**
-     * Sort array of arrays using value specified by key(s) (can be nested)
+     * Sort array of arrays using value specified by key(s)
      *
      * @param array $array Array of arrays
-     * @param mixed $keys Keys in format specified by getKeysArray method
+     * @param mixed $keys Keys in format specified by getKeysArray method or null to perform sort using 0-depth keys
      * @param bool $assoc If sorting should preserve main array keys (default: true)
      * @return array Sorted array
      * @see \Minwork\Helper\Arr::getKeysArray()
@@ -626,7 +629,7 @@ class Arr
 
 
     /**
-     * Clone array with every object inside it
+     * Copy array and clone every object inside it
      *
      * @param array $array
      * @return array
@@ -647,7 +650,7 @@ class Arr
     }
 
     /**
-     * Get random array value<br>
+     * Get random array value(s)
      *
      * @param array $array
      * @param int $count If equal to 1 than directly returns value or array of values otherwise
@@ -688,7 +691,7 @@ class Arr
     }
 
     /**
-     * Gets array elements which index match condition $An + $B (preserving original keys)
+     * Gets array elements with index matching condition $An + $B (preserving original keys)
      *
      * @see \Minwork\Helper\Arr::even()
      * @see \Minwork\Helper\Arr::odd()
