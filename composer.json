@@ -1,6 +1,6 @@
 {
 	"name" : "minwork/array",
-	"description" : "Advanced array validation, manipulation and processing - specially designed for arrays of objects as well as associative and multidimensional arrays",
+	"description" : "Pack of advanced array functions specifically tailored for: associative (assoc) array, multidimensional array, array of objects and handling nested array elements",
 	"type" : "library",
 	"keywords" : [
 		"array",
