@@ -131,7 +131,8 @@ class ArrTest extends TestCase
         $this->assertTrue(Arr::isEmpty([2 => [null]]));
 
         $this->assertFalse(Arr::isEmpty(['a']));
-        $this->assertFalse(Arr::isEmpty([0 => [0 => 'a'], [], null]));
+        $this->assertTrue(Arr::isEmpty([0 => [0], [], null, [false]]));
+        $this->assertFalse(Arr::isEmpty([0 => [0 => 'a'], [], null, [false]]));
     }
 
     public function testIsAssoc()
@@ -202,6 +203,18 @@ class ArrTest extends TestCase
         $this->assertSame(['test', 3, 4, '21'], Arr::mapObjects($array, 'test', 2, 1));
         $this->assertSame(['test', 2, 4, '2'], Arr::mapObjects($array, 'test', 2));
         $this->assertSame([], Arr::mapObjects([], 'test'));
+
+        $object = new class()
+        {
+            function test($arg = 0)
+            {
+                return 1 + $arg;
+            }
+        };
+        $array = [$object, $object, $object];
+
+        $this->assertSame([1, 1, 1], Arr::mapObjects($array, 'test'));
+        $this->assertSame([3, 3, 3], Arr::mapObjects($array, 'test', 2));
     }
 
     public function testFilterByKeys()
@@ -214,7 +227,8 @@ class ArrTest extends TestCase
         $this->assertSame(['a' => 1, 'b' => 2, 3 => 'c'], Arr::filterByKeys($array, ['a', null, 'b', 3, null]));
         $this->assertSame([3 => 'c', 4 => 5], Arr::filterByKeys($array, [0, 4, 3]));
         $this->assertSame([], Arr::filterByKeys($array, []));
-        $this->assertSame([], Arr::filterByKeys($array, [null, 0]));
+        $this->assertSame([], Arr::filterByKeys($array, [null, 0, '']));
+        $this->assertSame($array, Arr::filterByKeys($array, [null, 0, ''], true));
         $this->assertSame([4 => 5], Arr::filterByKeys($array, 'a.b.3', true));
         $this->assertSame([4 => 5], Arr::filterByKeys($array, ['a', null, 'b', 3, null], true));
         $this->assertSame(['a' => 1, 'b' => 2], Arr::filterByKeys($array, [0, 4, 3], true));
@@ -258,33 +272,41 @@ class ArrTest extends TestCase
     public function testGroup()
     {
         $array = [
-            'a' => ['key1' => 'test1', 'key2' => 1],
+            'a' => ['key1' => 'test1', 'key2' => 1, 'key3' => 'a'],
             'b' => ['key1' => 'test1', 'key2' => 2],
-            2 => ['key1' => 'test2', 'key2' => 3]
+            2 => ['key1' => 'test2', 'key2' => 3, 'key3' => 'b']
         ];
 
         $this->assertSame([
             'test1' => [
-                'a' => ['key1' => 'test1', 'key2' => 1],
+                'a' => ['key1' => 'test1', 'key2' => 1, 'key3' => 'a'],
                 'b' => ['key1' => 'test1', 'key2' => 2]
             ],
             'test2' => [
-                2 => ['key1' => 'test2', 'key2' => 3]
+                2 => ['key1' => 'test2', 'key2' => 3, 'key3' => 'b']
             ],
         ], Arr::group($array, 'key1'));
         $this->assertSame([
             1 => [
-                'a' => ['key1' => 'test1', 'key2' => 1],
+                'a' => ['key1' => 'test1', 'key2' => 1, 'key3' => 'a'],
             ],
             2 => [
                 'b' => ['key1' => 'test1', 'key2' => 2]
             ],
             3 => [
-                2 => ['key1' => 'test2', 'key2' => 3]
+                2 => ['key1' => 'test2', 'key2' => 3, 'key3' => 'b']
             ],
         ], Arr::group($array, 'key2'));
+        $this->assertSame([
+            'a' => [
+                'a' => ['key1' => 'test1', 'key2' => 1, 'key3' => 'a']
+            ],
+            'b' => [
+                2 => ['key1' => 'test2', 'key2' => 3, 'key3' => 'b']
+            ],
+        ], Arr::group($array, 'key3'));
         $this->assertSame([], Arr::group([], 'key'));
-        $this->assertSame([], Arr::group($array, 'key3'));
+        $this->assertSame([], Arr::group($array, 'key4'));
 
     }
 
@@ -496,14 +518,38 @@ class ArrTest extends TestCase
             ]
         ];
 
+        $array2 = [
+            'a' => [
+                'b' => [
+                    'c' => 'test'
+                ],
+                'd' => 1
+            ],
+            'b' => [
+                'e' => 2
+            ]
+        ];
+
+
         $this->assertSame([], Arr::flatten([[[[]]]]));
         $this->assertSame([], Arr::flatten([]));
+
+        $this->assertSame(['test', 1, 2], Arr::flatten($array2));
         $this->assertSame([3, 4, 5, 'e', 6, 'h', 'i', 7, 8, 'k', 9, 10], Arr::flatten($array));
 
         // Test depth
         $this->assertSame(['a'], Arr::flatten([[[['a']]]]));
         $this->assertSame(array_values($array), Arr::flatten($array, 0));
         $this->assertSame($array, Arr::flatten($array, 0, true));
+        $this->assertSame([['c' => 'test'], 1, 2], Arr::flatten($array2, 1));
+
+        $this->assertSame([
+            'c' => 'test',
+            'd' => 1,
+            'e' => 2
+        ], Arr::flatten($array2, null, true));
+
+
         $this->assertSame([
             [
                 1 => [
@@ -657,7 +703,8 @@ class ArrTest extends TestCase
     {
         $object1 = new ArrayObject();
         $object2 = new stdClass();
-        $function = function (){};
+        $function = function () {
+        };
 
         $this->assertSame(['a' => 1], Arr::forceArray(['a' => 1]));
         $this->assertSame([], Arr::forceArray([]));
@@ -681,8 +728,10 @@ class ArrTest extends TestCase
     {
         $object = new stdClass();
         $object2 = new ArrayObject();
-        $object3 = new class() {
+        $object3 = new class()
+        {
             public $counter = 1;
+
             function __clone()
             {
                 $this->counter = 2;
