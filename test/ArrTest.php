@@ -720,6 +720,50 @@ class ArrTest extends TestCase
         ]));
     }
 
+    public function testCreatMulti()
+    {
+        $expected = [
+            'test' => [
+                '123',
+                'test2' => [
+                    'test3' => 'abc',
+                    567
+                ],
+                [
+                    1 => 'def'
+                ],
+            ],
+        ];
+        $this->assertSame($expected, Arr::createMulti([
+            'test.[]' => '123',
+            'test.test2.test3' => 'abc',
+            'test.test2.[]' => 567,
+            'test.[].1' => 'def',
+        ]));
+
+        $this->assertSame($expected, Arr::createMulti([
+            ['test', '[]'],
+            ['test', 'test2', 'test3'],
+            ['test', 'test2', '[]'],
+            ['test', '[]', 1],
+        ], [
+            '123',
+            'abc',
+            567,
+            'def',
+        ]));
+
+        $this->assertSame([], Arr::createMulti([]));
+        $this->assertSame([], Arr::createMulti([], null));
+        $this->assertSame([], Arr::createMulti([], []));
+
+        $this->expectException(InvalidArgumentException::class);
+        Arr::createMulti([1], [1, 2]);
+        Arr::createMulti([1, 2], [2]);
+        Arr::createMulti([1, 2], []);
+        Arr::createMulti([], [2, 3]);
+    }
+
     public function testForceArray()
     {
         $object1 = new ArrayObject();
@@ -813,3 +857,4 @@ class ArrTest extends TestCase
         $this->assertSame([], array_diff(Arr::shuffle($array), $array));
     }
 }
+

@@ -604,6 +604,38 @@ class Arr
     \*--------------------------------------------------------------------------------------*/
 
     /**
+     * Create multidimensional array using either first param as config of keys and values
+     * or separate keys and values arrays
+     *
+     * @param array $keys If values are not specified, array will be created from this param keys (optionally dot formatted) and values. Otherwise it is used as array of keys (both dot and array notation possible)
+     * @param array|null $values [optional] Values for new array
+     * @return array
+     */
+    public static function createMulti(array $keys, ?array $values = null): array
+    {
+        if (is_null($values)) {
+            $values = array_values($keys);
+            $keys = array_keys($keys);
+        }
+
+        if (count($keys) !== count($values)) {
+            throw new \InvalidArgumentException('Keys and values arrays must have same amount of elements');
+        }
+
+        // Reset array indexes
+        $keys = array_values($keys);
+        $values = array_values($values);
+
+        $array = [];
+
+        foreach ($keys as $index => $key) {
+            $array = self::setNestedElement($array, $key, $values[$index]);
+        }
+
+        return $array;
+    }
+
+    /**
      * Make variable an array (according to flag settings)
      *
      * @param mixed $var
