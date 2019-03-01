@@ -17,11 +17,12 @@ namespace Minwork\Helper;
 class Arr
 {
     // Flags
-
     const FORCE_ARRAY_ALL = 1;
     const FORCE_ARRAY_PRESERVE_NULL = 2;
     const FORCE_ARRAY_PRESERVE_OBJECTS = 4;
     const FORCE_ARRAY_PRESERVE_ARRAY_OBJECTS = 8;
+
+    private const AUTO_INDEX_KEY = '[]';
 
     /*--------------------------------------------------------------------------------------*\
      |                                        Common                                        |
@@ -124,6 +125,11 @@ class Arr
             $key = array_shift($keysArray);
             if (!is_array($tmp)) {
                 $tmp = [];
+            }
+            if ($key === self::AUTO_INDEX_KEY) {
+                $tmp[] = null;
+                end($tmp);
+                $key = key($tmp);
             }
             $tmp = &$tmp[$key];
         }

@@ -121,6 +121,18 @@ Arr::setNestedElement([], 'key1.key2.key3', ['test']) -> $array
 
 $array = Arr::setNestedElement($array, 'key1.key2.key4', 'test2');
 $array['key1']['key2']['key4'] -> 'test2'
+
+// Create nested array element using automatic index
+Arr::setNestedElement($array, 'foo.[].foo', 'bar') -> 
+[
+    'foo' => [
+        [
+            'foo' => 'bar',
+        ],
+    ],
+]
+
+Arr::setNestedElement([], '[].[].[]', 'test') -> [ [ [ 'test' ] ] ]
 ```
 
 ## `check(array $array, mixed|callable $condition, bool $strict = false): bool`

@@ -86,6 +86,27 @@ class ArrTest extends TestCase
 
         $array = Arr::setNestedElement($array, 'key1.key2.key4', 'test2');
         $this->assertSame('test2', $array['key1']['key2']['key4']);
+
+        // Test auto index
+        $array = Arr::setNestedElement([], 'test.[]', 'test1');
+        $array = Arr::setNestedElement($array, 'test.test2.test3', 'abc');
+        $array = Arr::setNestedElement($array, 'test.test2.[]', 'test4');
+        $array = Arr::setNestedElement($array, 'test.[].test6', 'def');
+        $this->assertSame([
+            'test' => [
+                'test1',
+                'test2' => [
+                    'test3' => 'abc',
+                    'test4'
+                ],
+                [
+                    'test6' => 'def'
+                ],
+            ],
+        ], $array);
+
+        $this->assertSame([[['test']]], Arr::setNestedElement([], '[].[].[]', 'test'));
+        $this->assertSame([[[[]]]], Arr::setNestedElement([], '[].[].[]', []));
     }
 
     /********************************* Validation *********************************/
