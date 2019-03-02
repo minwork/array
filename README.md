@@ -56,6 +56,7 @@ Here, you can quickly get started by becoming familiar with each and every metho
 * [diffObjects](#diffobjectsarray-array1-array-array2-array-arrays-array)
 * [flatten](#flattenarray-array-int-depth--null-bool-assoc--false-array)
 * [flattenSingle](#flattensinglearray-array-array)
+* [createMulti](#createmultiarray-keys-array-values--null-array)
 * [forceArray](#forcearraymixed-var-int-flag--selfforce_array_all-mixed)
 * [clone](#clonearray-array-array)
 * [random](#randomarray-array-int-count--1-mixed)
