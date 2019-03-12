@@ -1,5 +1,9 @@
 # Minwork Array
 
+[![Build Status](https://travis-ci.org/minwork/array.svg?branch=master)](https://travis-ci.org/minwork/array)
+[![Latest Stable Version](https://poser.pugx.org/minwork/array/v/stable)](https://packagist.org/packages/minwork/array)
+[![License](https://poser.pugx.org/minwork/array/license)](https://packagist.org/packages/minwork/array)
+
 - Pack of advanced array functions best suited for:
   - **Multidimensional** arrays
   - Arrays of **objects**
