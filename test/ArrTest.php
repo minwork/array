@@ -842,9 +842,9 @@ class ArrTest extends TestCase
     {
         $array = range(0, 10);
 
-        $this->assertEquals([0, 2, 4, 6, 8, 10], Arr::even($array), '', 0, 10, true);
-        $this->assertEquals([1, 3, 5, 7, 9], Arr::odd($array), '', 0, 10, true);
-        $this->assertEquals([2, 6, 10], Arr::nth($array, 4, 2), '', 0, 10, true);
+        $this->assertEqualsCanonicalizing([0, 2, 4, 6, 8, 10], Arr::even($array));
+        $this->assertEqualsCanonicalizing([1, 3, 5, 7, 9], Arr::odd($array));
+        $this->assertEqualsCanonicalizing([2, 6, 10], Arr::nth($array, 4, 2));
         $this->assertSame($array, Arr::nth($array));
         $this->assertSame(['b' => 2, 'd' => 4], Arr::nth(['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4], 2, 1));
         $this->assertSame([], Arr::nth([], 100, 100));
