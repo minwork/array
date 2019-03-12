@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit colors="true">
     <testsuites>
-        <testsuite name="Arr Class Test Suite">
-            <directory>/test</directory>
+        <testsuite name="Complex">
+            <directory suffix="Test.php">./test</directory>
         </testsuite>
     </testsuites>
     <logging>
