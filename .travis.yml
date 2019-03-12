@@ -1,0 +1,13 @@
+language: php
+
+php:
+  - 7.1
+  - 7.2
+  - 7.3
+branches:
+  only:
+    - master
+before_install:
+  - travis_retry composer self-update
+  - composer install
+script: phpunit --bootstrap vendor/autoload.php test
