@@ -1,6 +1,7 @@
 # Minwork Array
 
 [![Build Status](https://travis-ci.org/minwork/array.svg?branch=master)](https://travis-ci.org/minwork/array)
+[![Coverage Status](https://coveralls.io/repos/github/minwork/array/badge.svg?branch=master)](https://coveralls.io/github/minwork/array?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/minwork/array/v/stable)](https://packagist.org/packages/minwork/array)
 [![License](https://poser.pugx.org/minwork/array/license)](https://packagist.org/packages/minwork/array)
 
