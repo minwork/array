@@ -10,4 +10,4 @@ branches:
 before_install:
   - travis_retry composer self-update
   - composer install
-script: phpunit --bootstrap vendor/autoload.php test
+script: vendor/bin/phpunit --bootstrap vendor/autoload.php test
