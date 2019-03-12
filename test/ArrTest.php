@@ -61,6 +61,8 @@ class ArrTest extends TestCase
         $this->assertSame(['test'], Arr::getNestedElement($array, 'key1.key2.key3'));
         $this->assertSame('test', Arr::getNestedElement($array, 'key1.key2.key3.0'));
         $this->assertSame('default', Arr::getNestedElement($array, 'key1.key4.key2.key3', 'default'));
+        /** @noinspection PhpParamsInspection */
+        $this->assertSame('default', Arr::getNestedElement(new stdClass(), 'key1.key4.key2.key3', 'default'));
         $this->assertNull(Arr::getNestedElement($array, 'key1.key4.key2.key3'));
 
         $object = new ArrayObject();
@@ -160,6 +162,7 @@ class ArrTest extends TestCase
     {
         $array = ['a' => 1, 'b' => 3, 1 => 'd', 'c'];
         $array2 = array_combine(range(1, 11), range(0, 10));
+        $this->assertFalse(Arr::isAssoc([]));
         $this->assertTrue(Arr::isAssoc($array));
         $this->assertTrue(Arr::isAssoc($array, true));
         $this->assertFalse(Arr::isAssoc($array2));
