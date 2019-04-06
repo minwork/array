@@ -118,6 +118,16 @@ class ArrTest extends TestCase
         $array1 = ['test', 'test', 'test'];
         $array2 = [1, 1, 1];
 
+        $class = new class() {
+            public function testOneArg($value) {
+                return is_numeric($value);
+            }
+
+            public function testTwoArg($value, $key) {
+                return is_int($key) || is_int($value);
+            }
+        };
+
         $this->assertTrue(Arr::check($array1, function ($value, $key) {
             return is_int($key) && $value == 'test';
         }));
@@ -128,6 +138,21 @@ class ArrTest extends TestCase
         $this->assertFalse(Arr::check($array1, function ($value) {
             return $value;
         }, true));
+
+        $this->assertFalse(Arr::check($array1, [$class, 'testOneArg']));
+        $this->assertFalse(Arr::check($array1, [$class, 'testOneArg'], true));
+
+        $this->assertTrue(Arr::check($array2, [$class, 'testOneArg']));
+        $this->assertTrue(Arr::check($array2, [$class, 'testOneArg'], true));
+
+        $this->assertTrue(Arr::check($array1, [$class, 'testTwoArg']));
+        $this->assertTrue(Arr::check($array1, [$class, 'testTwoArg'], true));
+
+        $this->assertTrue(Arr::check($array2, [$class, 'testTwoArg']));
+        $this->assertTrue(Arr::check($array2, [$class, 'testTwoArg'], true));
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->assertFalse(Arr::check($array1, 'Unexisting::method'));
 
         $this->assertTrue(Arr::check($array1, 'test', false));
         $this->assertTrue(Arr::check($array1, 'test', true));
@@ -496,9 +521,9 @@ class ArrTest extends TestCase
 
     public function testDiffObjects()
     {
-        $object1 = new \stdClass();
-        $object2 = new \stdClass();
-        $object3 = new \stdClass();
+        $object1 = new stdClass();
+        $object2 = new stdClass();
+        $object3 = new stdClass();
 
         $this->assertSame([1 => $object1], Arr::diffObjects([$object3, $object1, $object2], [$object3], [$object2]));
         $this->assertSame([], Arr::diffObjects([$object3, $object1, $object2], [$object3], [$object1, $object2]));
