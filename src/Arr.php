@@ -8,6 +8,12 @@
 
 namespace Minwork\Helper;
 
+use ArrayAccess;
+use InvalidArgumentException;
+use ReflectionFunction;
+use ReflectionMethod;
+use Throwable;
+
 /**
  * Pack of advanced array functions - specifically for associative arrays and arrays of objects
  *
@@ -80,7 +86,7 @@ class Arr
     /**
      * Get nested element of an array or object implementing array access
      *
-     * @param array|\ArrayAccess $array
+     * @param array|ArrayAccess $array
      *            Array or object implementing array access to get element from
      * @param mixed $keys
      *            See getKeysArray method
@@ -93,10 +99,10 @@ class Arr
     {
         $keys = self::getKeysArray($keys);
         foreach ($keys as $key) {
-            if (!is_array($array) && !$array instanceof \ArrayAccess) {
+            if (!is_array($array) && !$array instanceof ArrayAccess) {
                 return $default;
             }
-            if (($array instanceof \ArrayAccess && $array->offsetExists($key)) || array_key_exists($key, $array)) {
+            if (($array instanceof ArrayAccess && $array->offsetExists($key)) || array_key_exists($key, $array)) {
                 $array = $array[$key];
             } else {
                 return $default;
@@ -154,13 +160,21 @@ class Arr
      */
     public static function check(array $array, $condition, bool $strict = false): bool
     {
+        if (is_callable($condition)) {
+            try {
+                $CReflection = is_array($condition) ?
+                    new ReflectionMethod($condition[0], $condition[1]) :
+                    new ReflectionFunction($condition);
+                $paramsCount = $CReflection->getNumberOfParameters();
+            } catch (Throwable $e) {
+                $paramsCount = 2;
+            }
+        }
+
         foreach ($array as $key => $value) {
             if (is_callable($condition)) {
-                try {
-                    $result = call_user_func($condition, $value, $key);
-                } catch (\Throwable $e) {
-                    $result = call_user_func($condition, $value);
-                }
+                /** @var int $paramsCount */
+                $result = $paramsCount == 1 ? call_user_func($condition, $value) : call_user_func($condition, $value, $key);
 
                 if ($strict ? $result !== true : !$result) {
                     return false;
@@ -619,7 +633,7 @@ class Arr
         }
 
         if (count($keys) !== count($values)) {
-            throw new \InvalidArgumentException('Keys and values arrays must have same amount of elements');
+            throw new InvalidArgumentException('Keys and values arrays must have same amount of elements');
         }
 
         // Reset array indexes
@@ -652,7 +666,7 @@ class Arr
                 if ($flag & self::FORCE_ARRAY_PRESERVE_OBJECTS) {
                     return $var;
                 }
-                if (($flag & self::FORCE_ARRAY_PRESERVE_ARRAY_OBJECTS) && $var instanceof \ArrayAccess) {
+                if (($flag & self::FORCE_ARRAY_PRESERVE_ARRAY_OBJECTS) && $var instanceof ArrayAccess) {
                     return $var;
                 }
             }
@@ -692,7 +706,7 @@ class Arr
      *
      * @param array $array
      * @param int $count If equal to 1 than directly returns value or array of values otherwise
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return mixed
      */
     public static function random(array $array, int $count = 1)
@@ -702,7 +716,7 @@ class Arr
         }
 
         if ($count > ($arrayCount = count($array)) || $count < 1) {
-            throw new \InvalidArgumentException("Count must be a number between 1 and $arrayCount");
+            throw new InvalidArgumentException("Count must be a number between 1 and $arrayCount");
         }
 
         return $count == 1 ? $array[array_rand($array)] : array_intersect_key($array, array_flip(array_rand($array, $count) ?? []));
