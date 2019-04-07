@@ -896,12 +896,12 @@ class TestCheckMethod
         return is_int($key) || is_int($value);
     }
 
-    public function testStaticOneArg($value)
+    public static function testStaticOneArg($value)
     {
         return $value;
     }
 
-    public function testStaticTwoArg($value, $key)
+    public static function testStaticTwoArg($value, $key)
     {
         return $key < 3 && $value;
     }
