@@ -171,7 +171,7 @@ class Arr
                 try {
                     $reflection = new ReflectionFunction($condition);
                     $paramsCount = $reflection->getNumberOfParameters();
-                } catch (Throwable $exception) {
+                } catch (Throwable $exception) { // @codeCoverageIgnore
                     $paramsCount = 2; // @codeCoverageIgnore
                 }
             }

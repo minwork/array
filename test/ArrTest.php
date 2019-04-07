@@ -148,12 +148,18 @@ class ArrTest extends TestCase
 
         $this->assertTrue(Arr::check($array1, 'test', false));
         $this->assertTrue(Arr::check($array1, 'test', true));
+        $this->assertFalse(Arr::check($array1, 'test1', false));
+        $this->assertFalse(Arr::check($array1, 'test1', true));
 
         $this->assertTrue(Arr::check($array2, '1', false));
         $this->assertFalse(Arr::check($array2, '1', true));
+        $this->assertTrue(Arr::check($array2, 1, false));
+        $this->assertTrue(Arr::check($array2, 1, true));
 
         $this->assertTrue(Arr::check($array2, 'is_int'));
+        $this->assertTrue(Arr::check($array2, 'is_int', true));
         $this->assertFalse(Arr::check($array2, 'is_string'));
+        $this->assertFalse(Arr::check($array2, 'is_string', true));
 
         $this->assertFalse(Arr::check($array1, ['test']));
         $this->assertFalse(Arr::check($array2, [1]));
