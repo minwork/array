@@ -160,14 +160,20 @@ class Arr
      */
     public static function check(array $array, $condition, bool $strict = false): bool
     {
-        if (is_callable($condition, true)) {
+        if (is_callable($condition)) {
             try {
-                $CReflection = is_array($condition) ?
+                $reflection = is_array($condition) ?
                     new ReflectionMethod($condition[0], $condition[1]) :
-                    new ReflectionFunction($condition);
-                $paramsCount = $CReflection->getNumberOfParameters();
+                    new ReflectionMethod($condition);
+
+                $paramsCount = $reflection->getNumberOfParameters();
             } catch (Throwable $e) {
-                throw new InvalidArgumentException('Invalid callable supplied to check method');
+                try {
+                    $reflection = new ReflectionFunction($condition);
+                    $paramsCount = $reflection->getNumberOfParameters();
+                } catch (Throwable $exception) {
+                    $paramsCount = 2; // @codeCoverageIgnore
+                }
             }
         }
 

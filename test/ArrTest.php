@@ -118,15 +118,7 @@ class ArrTest extends TestCase
         $array1 = ['test', 'test', 'test'];
         $array2 = [1, 1, 1];
 
-        $class = new class() {
-            public function testOneArg($value) {
-                return is_numeric($value);
-            }
-
-            public function testTwoArg($value, $key) {
-                return is_int($key) || is_int($value);
-            }
-        };
+        $class = new TestCheckMethod();
 
         $this->assertTrue(Arr::check($array1, function ($value, $key) {
             return is_int($key) && $value == 'test';
@@ -151,8 +143,8 @@ class ArrTest extends TestCase
         $this->assertTrue(Arr::check($array2, [$class, 'testTwoArg']));
         $this->assertTrue(Arr::check($array2, [$class, 'testTwoArg'], true));
 
-        $this->expectException(InvalidArgumentException::class);
-        $this->assertFalse(Arr::check($array1, 'Unexisting::method'));
+        $this->assertTrue(Arr::check($array2, 'TestCheckMethod::testStaticOneArg'));
+        $this->assertTrue(Arr::check($array2, 'TestCheckMethod::testStaticTwoArg'));
 
         $this->assertTrue(Arr::check($array1, 'test', false));
         $this->assertTrue(Arr::check($array1, 'test', true));
@@ -886,3 +878,25 @@ class ArrTest extends TestCase
     }
 }
 
+class TestCheckMethod
+{
+    public function testOneArg($value)
+    {
+        return is_numeric($value);
+    }
+
+    public function testTwoArg($value, $key)
+    {
+        return is_int($key) || is_int($value);
+    }
+
+    public function testStaticOneArg($value)
+    {
+        return $value;
+    }
+
+    public function testStaticTwoArg($value, $key)
+    {
+        return $key < 3 && $value;
+    }
+}
