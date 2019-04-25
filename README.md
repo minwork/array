@@ -23,6 +23,7 @@
    * [Installation](#installation)
    * [Advantages](#advantages)
    * [Documentation](#documentation)
+   * [Change Log](https://github.com/minwork/array/releases)
 
 # Installation
 `composer require minwork/array`
