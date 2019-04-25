@@ -1,6 +1,7 @@
 <?php
 
 use Minwork\Helper\Arr;
+use PHPUnit\Framework\Error\Deprecated;
 use PHPUnit\Framework\TestCase;
 
 class ArrTest extends TestCase
@@ -109,6 +110,34 @@ class ArrTest extends TestCase
 
         $this->assertSame([[['test']]], Arr::setNestedElement([], '[].[].[]', 'test'));
         $this->assertSame([[[[]]]], Arr::setNestedElement([], '[].[].[]', []));
+    }
+
+    public function testUnpack()
+    {
+        $array = [
+            'key1' => [
+                'key2' => [
+                    'key3' => ['test', 'test2'],
+                    'key4' => 'test3'
+                ],
+                1
+            ],
+            2,
+            4 => 56
+        ];
+        $array2 = [1, 2, 3, 4, 5];
+
+        $this->assertSame([
+            'key1.key2.key3.0' => 'test',
+            'key1.key2.key3.1' => 'test2',
+            'key1.key2.key4' => 'test3',
+            'key1.0' => 1,
+            0 => 2,
+            4 => 56,
+
+        ], Arr::unpack($array));
+
+        $this->assertSame($array2, Arr::unpack($array2));
     }
 
     /********************************* Validation *********************************/
@@ -222,12 +251,105 @@ class ArrTest extends TestCase
     public function testMap()
     {
         $array = ['a', 'b', 'c'];
-        $func = function ($key, $value) {
+        $array2 = [
+            'key1' => [
+                'key2' => [
+                    'key3' => ['test', 'test2'],
+                    'key4' => 'test3'
+                ],
+                1
+            ],
+            2,
+            4 => 56
+        ];
+        $array3 = [
+            1 => [
+                2 => [
+                    3 => [
+                        4 => 'test'
+                    ],
+                    4 => 'test2',
+                ],
+                5 => [
+                    6 => 'test3',
+                    7 => 'test4'
+                ],
+            ],
+            8 => [
+                'a' => [
+                    'b' => 'test5',
+                    'c' => [
+                        'd' => 'test6'
+                    ],
+                ],
+            ],
+        ];
+
+        $funcKeyVal = function ($key, $value) {
             return "{$key}{$value}";
         };
+        $funcKeysVal = function ($keys, $value) {
+            return implode($keys, '-') . ':' . $value;
+        };
+        $funcValKeysList = function ($value, $key1, $key2, $key3) {
+            return "$key2.$key1.$key3.$value";
+        };
 
-        $this->assertSame(['0a', '1b', '2c'], Arr::map($func, $array));
-        $this->assertSame([], Arr::map($func, []));
+        // Old test with new syntax
+        $this->assertSame(['0a', '1b', '2c'], Arr::map($array, $funcKeyVal));
+        $this->assertSame([], Arr::map([], $funcKeyVal));
+        $this->assertSame(range(0, 2), Arr::map($array, function ($key) {
+            return $key;
+        }));
+
+        // Test keys array
+        $this->assertSame([
+            'key1' => [
+                'key2' => [
+                    'key3' => [
+                        'key1-key2-key3-0:test',
+                        'key1-key2-key3-1:test2'
+                    ],
+                    'key4' => 'key1-key2-key4:test3'
+                ],
+                'key1-0:1'
+            ],
+            '0:2',
+            4 => '4:56'
+        ], Arr::map($array2, $funcKeysVal, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE));
+
+        // Test keys list
+        $this->assertSame([
+            1 => [
+                2 => [
+                    3 => [
+                        4 => '2.1.3.test'
+                    ],
+                    4 => '2.1.4.test2',
+                ],
+                5 => [
+                    6 => '5.1.6.test3',
+                    7 => '5.1.7.test4'
+                ],
+            ],
+            8 => [
+                'a' => [
+                    'b' => 'a.8.b.test5',
+                    'c' => [
+                        'd' => 'a.8.c.test6'
+                    ],
+                ],
+            ],
+        ], Arr::map($array3, $funcValKeysList, Arr::MAP_ARRAY_VALUE_KEYS_LIST));
+
+        $this->expectException(Deprecated::class);
+        $this->expectExceptionCode(E_USER_DEPRECATED);
+
+        /** @noinspection PhpParamsInspection */
+        $this->assertSame(['0a', '1b', '2c'], Arr::map($funcKeyVal, $array));
+        /** @noinspection PhpParamsInspection */
+        $this->assertSame([], Arr::map($funcKeyVal, []));
+        /** @noinspection PhpParamsInspection */
         $this->assertSame(range(0, 2), Arr::map(function ($key) {
             return $key;
         }, $array));

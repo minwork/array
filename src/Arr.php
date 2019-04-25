@@ -28,6 +28,11 @@ class Arr
     const FORCE_ARRAY_PRESERVE_OBJECTS = 4;
     const FORCE_ARRAY_PRESERVE_ARRAY_OBJECTS = 8;
 
+    const MAP_ARRAY_KEY_VALUE = 1;
+    const MAP_ARRAY_VALUE_KEYS_LIST = 2;
+    const MAP_ARRAY_KEYS_ARRAY_VALUE = 4;
+
+
     private const AUTO_INDEX_KEY = '[]';
 
     /*--------------------------------------------------------------------------------------*\
@@ -114,11 +119,11 @@ class Arr
     /**
      * Set array element specified by keys to the desired value (create missing keys if necessary)
      *
-     * @see \Minwork\Helper\Arr::getKeysArray
      * @param array $array
      * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
      * @param mixed $value Value to set
      * @return array Copy of an array with element set
+     * @see \Minwork\Helper\Arr::getKeysArray
      * @see \Minwork\Helper\Arr::getKeysArray()
      */
     public static function setNestedElement(array $array, $keys, $value): array
@@ -140,6 +145,31 @@ class Arr
             $tmp = &$tmp[$key];
         }
         $tmp = $value;
+
+        return $result;
+    }
+
+    /**
+     * Converts multidimensional array to map of keys concatenated by dot and corresponding values
+     *
+     * @param array $array
+     * @param array $keys Internal keys storage used for recursive calls
+     * @return array
+     */
+    public static function unpack(array $array, array $keys = []): array
+    {
+        $result = [];
+
+        foreach ($array as $key => $value) {
+
+            if (is_array($value)) {
+                $keys[] = $key;
+                $result += self::unpack($value, $keys);
+                array_pop($keys);
+            } else {
+                $result[implode('.', array_merge($keys, [$key]))] = $value;
+            }
+        }
 
         return $result;
     }
@@ -303,19 +333,47 @@ class Arr
     /**
      * Applies a callback to the elements of given array
      *
-     * @param callable $callback Callback to run for each element of array (arguments: key, value)
      * @param array $array
+     * @param callable $callback Callback to run for each element of array
+     * @param int $mode Determines callback arguments order and format<br>
+     *   <br>
+     *   MAP_ARRAY_KEY_VALUE -> callback($key, $value)<br>
+     *   MAP_ARRAY_VALUE_KEYS_LIST -> callback($value, $key1, $key2, ...)<br>
+     *   MAP_ARRAY_KEYS_ARRAY_VALUE -> callback(array $keys, $value)
      * @return array
      */
-    public static function map(callable $callback, array $array): array
+    public static function map($array, $callback, int $mode = self::MAP_ARRAY_KEY_VALUE): array
     {
-        $return = [];
+        // If has old arguments order then swap and issue warning
+        if (is_callable($array) && is_array($callback)) {
+            $tmp = $array;
+            $array = $callback;
+            $callback = $tmp;
+            trigger_error('Supplying callback as first argument to Arr::map method is deprecated and will trigger error in next major release. Please use new syntax -> Arr::map(array $array, callback $callback, int $mode)', E_USER_DEPRECATED);
+        }
+        $result = [];
 
-        foreach ($array as $key => $value) {
-            $return[$key] = $callback($key, $value);
+        switch ($mode) {
+            case self::MAP_ARRAY_KEY_VALUE:
+                foreach ($array as $key => $value) {
+                    $result[$key] = $callback($key, $value);
+                }
+                break;
+            case self::MAP_ARRAY_VALUE_KEYS_LIST:
+                foreach (self::unpack($array) as $dotKeys => $value) {
+                    $keys = self::getKeysArray($dotKeys);
+                    $result = self::setNestedElement($result, $keys, $callback($value, ...$keys));
+                }
+                break;
+            case self::MAP_ARRAY_KEYS_ARRAY_VALUE:
+                foreach (self::unpack($array) as $dotKeys => $value) {
+                    $keys = self::getKeysArray($dotKeys);
+                    $result = self::setNestedElement($result, $keys, $callback($keys, $value));
+                }
+                break;
         }
 
-        return $return;
+        return $result;
     }
 
     /**
@@ -473,8 +531,8 @@ class Arr
      * @param array $array
      * @param mixed $keys See getKeysArray method
      * @param bool $appendUnmatched If values not matched by supplied keys should be appended to the end of an array
-     * @see \Minwork\Helper\Arr::getKeysArray()
      * @return array
+     * @see \Minwork\Helper\Arr::getKeysArray()
      */
     public static function orderByKeys(array $array, $keys, bool $appendUnmatched = true): array
     {
@@ -712,8 +770,8 @@ class Arr
      *
      * @param array $array
      * @param int $count If equal to 1 than directly returns value or array of values otherwise
-     * @throws InvalidArgumentException
      * @return mixed
+     * @throws InvalidArgumentException
      */
     public static function random(array $array, int $count = 1)
     {
@@ -751,12 +809,12 @@ class Arr
     /**
      * Gets array elements with index matching condition $An + $B (preserving original keys)
      *
-     * @see \Minwork\Helper\Arr::even()
-     * @see \Minwork\Helper\Arr::odd()
      * @param array $array
      * @param int $A
      * @param int $B
      * @return array
+     * @see \Minwork\Helper\Arr::even()
+     * @see \Minwork\Helper\Arr::odd()
      */
     public static function nth(array $array, int $A = 1, int $B = 0): array
     {
