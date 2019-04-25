@@ -44,13 +44,14 @@ Here, you can quickly get started by becoming familiar with each and every metho
 * [hasKeys](#haskeysarray-array-mixed-keys-bool-strict--false-bool)
 * [getNestedElement](#getnestedelementarrayarrayaccess-array-mixed-keys-mixed-default--null-mixed)
 * [setNestedElement](#setnestedelementarray-array-mixed-keys-mixed-value-array)
+* [unpack](#unpackarray-array-array-keys---array)
 * [check](#checkarray-array-mixedcallable-condition-bool-strict--false-bool)
 * [isEmpty](#isemptymixed-array-bool)
 * [isAssoc](#isassocarray-array-bool-strict--false-bool)
 * [isNumeric](#isnumericarray-array-bool)
 * [isUnique](#isuniquearray-array-bool-strict--false-bool)
 * [isArrayOfArrays](#isarrayofarraysarray-array-bool)
-* [map](#mapcallable-callback-array-array-array)
+* [map](#maparray-array-callable-callback-int-mode--arrmap_array_key_value-array)
 * [mapObjects](#mapobjectsarray-objects-string-method-args-array)
 * [filterByKeys](#filterbykeysarray-array-mixed-keys-bool-exclude--false-array)
 * [filterObjects](#filterobjectsarray-objects-string-method-args-array)
@@ -142,6 +143,34 @@ Arr::setNestedElement($array, 'foo.[].foo', 'bar') ->
 Arr::setNestedElement([], '[].[].[]', 'test') -> [ [ [ 'test' ] ] ]
 ```
 
+## `unpack(array $array, array $keys = []): array`
+Converts multidimensional array to map of keys concatenated by dot and corresponding values
+
+```php
+$array = [
+    'key1' => [
+        'key2' => [
+            'key3' => [
+                'foo' => 'test',
+                'bar' => 'test2',
+            ]
+        ]
+        'abc' => 'test3',
+    ],
+    'xyz' => 'test4',
+    'test5'
+];
+
+Arr::unpack($array) ->
+[
+    'key1.key2.key3.foo' => 'test',
+    'key1.key2.key3.bar' => 'test2',
+    'key1.abc' => 'test3',
+    'xyz' => 'test4',
+    '0' => 'test5',
+]
+```
+
 ## `check(array $array, mixed|callable $condition, bool $strict = false): bool`
 Check if every element of an array meets specified condition
 
@@ -231,17 +260,62 @@ Arr::isArrayOfArrays([[], []]) -> true
 Arr::isArrayOfArrays([1, 2 => []]) -> false
 ```
 
-## `map(callable $callback, array $array): array`
-Applies a callback (key and value as arguments) to the elements of given array
+## `map(array $array, callable $callback, int $mode = Arr::MAP_ARRAY_KEY_VALUE): array`
+Applies a callback to the elements of given array. Arguments supplied to callback differs depending on selected `$mode`
+
+*For backward compatibility using map(callable, array) is still possible but is deprecated and will issue appropriate warning*
 
 ```php
-$array = ['a', 'b', 'c'];
-$function = function ($key, $value) {
-    return "{$key}{$value}";
+$array1 = ['a', 'b', 'c'];
+$array2 = [
+    1 => [
+        2 => 'a',
+        3 => 'b',
+        4 => [
+            5 => 'c',
+        ],
+    ],
+    'test' => 'd',
+];
+
+$mapKeyValue = function ($key, $value) {
+    return "{$key} -> {$value}";
 };
+$mapKeysValue = function ($keys, $value) {
+    return implode('.', $keys') . " -> {$value}"
+};
+$mapValueKeysList = function ($value, $key1, $key2) {
+    return "$key1.$key2 -> {$value}";
+}
 
- Arr::map($function, $array) -> ['0a', '1b', '2c']
+// Equivalent to using MAP_ARRAY_KEY_VALUE as mode (3rd) argument
+Arr::map($mapKeyValue, $array1) -> ['0 -> a', '1 -> b', '2 -> c']
 
+// Map multidimensional array using keys array
+Arr::map($mapKeysValue, $array2, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE) ->
+[
+    1 => [
+        2 => '1.2 -> a',
+        3 => '1.3 -> b',
+        4 => [
+            5 => '1.4.5 -> c',
+        ],
+    ],
+    'test' => 'test -> d',
+]
+
+// Map multidimensional array using keys list (mind that all keys above 2nd are ignored due to callback function syntax)
+Arr::map($mapValueKeysList, $array2, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE) ->
+[
+    1 => [
+        2 => '1.2 -> a',
+        3 => '1.3 -> b',
+        4 => [
+            5 => '1.4 -> c',
+        ],
+    ],
+    'test' => 'test -> d',
+]
 ```
 
 ## `mapObjects(array $objects, string $method, ...$args): array`
