@@ -289,10 +289,10 @@ $mapValueKeysList = function ($value, $key1, $key2) {
 };
 
 // Equivalent to using MAP_ARRAY_KEY_VALUE as mode (3rd) argument
-Arr::map($mapKeyValue, $array1) -> ['0 -> a', '1 -> b', '2 -> c']
+Arr::map($array1, $mapKeyValue) -> ['0 -> a', '1 -> b', '2 -> c']
 
 // Map multidimensional array using keys array
-Arr::map($mapKeysValue, $array2, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE) ->
+Arr::map($array2, $mapKeysValue, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE) ->
 [
     1 => [
         2 => '1.2 -> a',
@@ -305,7 +305,7 @@ Arr::map($mapKeysValue, $array2, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE) ->
 ]
 
 // Map multidimensional array using keys list (mind that all keys above 2nd are ignored due to callback function syntax)
-Arr::map($mapValueKeysList, $array2, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE) ->
+Arr::map($array2, $mapValueKeysList, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE) ->
 [
     1 => [
         2 => '1.2 -> a',
