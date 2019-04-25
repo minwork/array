@@ -282,7 +282,7 @@ $mapKeyValue = function ($key, $value) {
     return "{$key} -> {$value}";
 };
 $mapKeysValue = function ($keys, $value) {
-    return implode('.', $keys') . " -> {$value}"
+    return implode('.', $keys') . " -> {$value}";
 };
 $mapValueKeysList = function ($value, $key1, $key2) {
     return "$key1.$key2 -> {$value}";
