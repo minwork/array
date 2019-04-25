@@ -305,7 +305,7 @@ Arr::map($array2, $mapKeysValue, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE) ->
 ]
 
 // Map multidimensional array using keys list (mind that all keys above 2nd are ignored due to callback function syntax)
-Arr::map($array2, $mapValueKeysList, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE) ->
+Arr::map($array2, $mapValueKeysList, Arr::MAP_ARRAY_VALUE_KEYS_LIST) ->
 [
     1 => [
         2 => '1.2 -> a',
