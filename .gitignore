@@ -4,3 +4,4 @@
 .project
 composer.lock
 vendor/
+build/
