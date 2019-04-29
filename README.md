@@ -438,7 +438,7 @@ Arr::groupObjects([$object1, $object2, $object1], 'test') ->
 ]
 
 // This method is also very useful in conjunction with Arr::flattenSingle to assign unique key for each object
-Arr::flattenSingle(Arr::groupObjects([$object1, $object2])) -> 
+Arr::flattenSingle(Arr::groupObjects([$object1, $object2], 'test')) -> 
 [
     'test1' => $object1,
     'test2' => $object2,
