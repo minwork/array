@@ -40,29 +40,39 @@ Detailed documentation is available through PHPDoc, so you can access it anytime
 
 Here, you can quickly get started by becoming familiar with each and every method through detailed examples
 
+### Common
 * [getKeysArray](#getkeysarraymixed-keys-array)
 * [hasKeys](#haskeysarray-array-mixed-keys-bool-strict--false-bool)
 * [getNestedElement](#getnestedelementarrayarrayaccess-array-mixed-keys-mixed-default--null-mixed)
 * [setNestedElement](#setnestedelementarray-array-mixed-keys-mixed-value-array)
 * [unpack](#unpackarray-array-array-keys---array)
+### Validation
 * [check](#checkarray-array-mixedcallable-condition-bool-strict--false-bool)
 * [isEmpty](#isemptymixed-array-bool)
 * [isAssoc](#isassocarray-array-bool-strict--false-bool)
 * [isNumeric](#isnumericarray-array-bool)
 * [isUnique](#isuniquearray-array-bool-strict--false-bool)
 * [isArrayOfArrays](#isarrayofarraysarray-array-bool)
-* [map](#maparray-array-callable-callback-int-mode--arrmap_array_key_value-array)
-* [mapObjects](#mapobjectsarray-objects-string-method-args-array)
-* [filterByKeys](#filterbykeysarray-array-mixed-keys-bool-exclude--false-array)
-* [filterObjects](#filterobjectsarray-objects-string-method-args-array)
-* [group](#grouparray-array-stringint-key-array)
-* [groupObjects](#groupobjectsarray-objects-string-method-args-array)
-* [orderByKeys](#orderbykeysarray-array-mixed-keys-bool-appendunmatched--true-array)
-* [sortByKeys](#sortbykeysarray-array-mixed-keys--null-bool-assoc--true-array)
-* [sum](#sumarray-arrays-array)
-* [diffObjects](#diffobjectsarray-array1-array-array2-array-arrays-array)
-* [flatten](#flattenarray-array-int-depth--null-bool-assoc--false-array)
-* [flattenSingle](#flattensinglearray-array-array)
+### Manipulation
+* Mapping
+    * [map](#maparray-array-callable-callback-int-mode--arrmap_array_key_value-array)
+    * [mapObjects](#mapobjectsarray-objects-string-method-args-array)
+* Filtering
+    * [filterByKeys](#filterbykeysarray-array-mixed-keys-bool-exclude--false-array)
+    * [filterObjects](#filterobjectsarray-objects-string-method-args-array)
+* Grouping
+    * [group](#grouparray-array-stringint-key-array)
+    * [groupObjects](#groupobjectsarray-objects-string-method-args-array)
+* Ordering
+    * [orderByKeys](#orderbykeysarray-array-mixed-keys-bool-appendunmatched--true-array)
+    * [sortByKeys](#sortbykeysarray-array-mixed-keys--null-bool-assoc--true-array)
+* Computations
+    * [sum](#sumarray-arrays-array)
+    * [diffObjects](#diffobjectsarray-array1-array-array2-array-arrays-array)
+* Flattening
+    * [flatten](#flattenarray-array-int-depth--null-bool-assoc--false-array)
+    * [flattenSingle](#flattensinglearray-array-array)
+### Utilities
 * [createMulti](#createmultiarray-keys-array-values--null-array)
 * [forceArray](#forcearraymixed-var-int-flag--selfforce_array_all-mixed)
 * [clone](#clonearray-array-array)
