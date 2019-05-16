@@ -599,6 +599,41 @@ class ArrTest extends TestCase
         ], Arr::sortByKeys($array3, 'b.c', false));
     }
 
+    public function testSortObjects()
+    {
+        $object1 = new class() {
+            public static $counter = 1;
+            public $i = 1;
+
+            public function __clone()
+            {
+                $this->i = ++self::$counter;
+            }
+
+            public function getValue(bool $reverse = false) {
+                return $reverse ? 1 / $this->i : $this->i;
+            }
+        };
+        $object2 = clone $object1;
+        $object3 = clone $object1;
+        $object4 = clone $object1;
+        $object5 = clone $object1;
+
+        $proto = [$object1, $object2, $object3, $object4, $object5];
+        $array = $proto;
+
+        $this->assertSame(Arr::mapObjects($array, 'getValue'), [1, 2, 3, 4, 5]);
+        $this->assertSame(Arr::mapObjects($array, 'getValue', true), [1, 1/2, 1/3, 1/4, 1/5]);
+
+        // Ensure order is not the same
+        do {
+            $array = Arr::shuffle($array);
+        } while ($array === $proto);
+
+        $this->assertSame($proto, Arr::sortObjects($array, 'getValue'));
+        $this->assertSame(array_reverse($proto, true), Arr::sortObjects($array, 'getValue', true));
+    }
+
     public function testSum()
     {
         $arrays = [

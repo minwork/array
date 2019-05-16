@@ -66,6 +66,7 @@ Here, you can quickly get started by becoming familiar with each and every metho
 * Ordering
     * [orderByKeys](#orderbykeysarray-array-mixed-keys-bool-appendunmatched--true-array)
     * [sortByKeys](#sortbykeysarray-array-mixed-keys--null-bool-assoc--true-array)
+    * [sortObjects](#sortobjectsarray-objects-string-method-args-array)
 * Computations
     * [sum](#sumarray-arrays-array)
     * [diffObjects](#diffobjectsarray-array1-array-array2-array-arrays-array)
@@ -535,6 +536,34 @@ Arr::sortByKeys($array, 'b.c', false) ->
 Arr::sortByKeys(['a' => 3, 'b' => 1, 'c' => 6]) -> ['b' => 1, 'a' => 3, 'c' => 6]
 Arr::sortByKeys(['a' => 3, 'b' => 1, 'c' => 6], null, false) -> [1, 3, 6]
 ```
+
+### `sortObjects(array $objects, string $method, ...$args): array`
+Sort array of objects by comparing result of supplied method name 
+
+`$object1->$method(...$args) <=> $object2->$method(...$args)`
+
+```php
+$object1 = new class() {
+    function getValue() {
+        return 1; 
+    }
+};
+$object2 = new class() {
+    function getValue(bool $reverse = false) {
+        return $reverse ? 1/2 : 2; 
+    }
+};
+$object3 = new class() {
+    function getValue(bool $reverse = false) {
+        return $reverse ? 1/3 : 3; 
+    }
+};
+
+$array = [$object2, $object3, $object1];
+
+Arr::sortObjects($array, 'getValue') -> [$object1, $object2, $object3]
+Arr::sortObjects($array, 'getValue', true) -> [$object3, $object2, $object1]
+```  
 
 ## Computations
 

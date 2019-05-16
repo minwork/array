@@ -553,7 +553,7 @@ class Arr
      * @param array $array Array of arrays
      * @param mixed $keys Keys in format specified by getKeysArray method or null to perform sort using 0-depth keys
      * @param bool $assoc If sorting should preserve main array keys (default: true)
-     * @return array Sorted array
+     * @return array New sorted array
      * @see \Minwork\Helper\Arr::getKeysArray()
      */
     public static function sortByKeys(array $array, $keys = null, bool $assoc = true): array
@@ -566,6 +566,25 @@ class Arr
         });
 
         return $return;
+    }
+
+    /**
+     * Sort array of objects using result of calling supplied method name on object as value to compare
+     *
+     * @param array $objects Array of objects
+     * @param string $method Name of a method called for every array element (object) in order to obtain value to compare
+     * @param mixed ...$args Arguments for method
+     * @return array New sorted array
+     */
+    public static function sortObjects(array $objects, string $method, ...$args): array
+    {
+        $result = $objects;
+
+        uasort($result, function ($a, $b) use ($method, $args) {
+            return $a->$method(...$args) <=> $b->$method(...$args);
+        });
+
+        return $result;
     }
 
     /**
