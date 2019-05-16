@@ -80,7 +80,9 @@ Here, you can quickly get started by becoming familiar with each and every metho
 * [shuffle](#shufflearray-array-array)
 * [nth](#ntharray-array-int-a--1-int-b--0-array)
 
-## `getKeysArray(mixed $keys): array`
+# Common
+
+### `getKeysArray(mixed $keys): array`
 Transform variable into standarised array of keys
 
 **All `$keys` parameters are normalized using this method**
@@ -97,7 +99,7 @@ Arr::getKeysArray('key1.0.key2.1') -> ['key1', '0', 'key2', '1']
 Arr::getKeysArray([null, 'key1', '', 'key2', 3.1415, 0]) -> ['key1', 'key2', 0]
 ```
 
-## `hasKeys(array $array, mixed $keys, bool $strict = false): bool`
+### `hasKeys(array $array, mixed $keys, bool $strict = false): bool`
 Check if array has specified keys ( all required, when `$strict` is `true`)
 
 ```php
@@ -114,7 +116,7 @@ Arr::hasKeys($array, ['test', 'key1'], true) -> false
 Arr::hasKeys($array, 'test') -> false
 ```
 
-## `getNestedElement(array|ArrayAccess $array, mixed $keys, mixed $default = null): mixed`
+### `getNestedElement(array|ArrayAccess $array, mixed $keys, mixed $default = null): mixed`
 Get nested array element using specified keys or return `$default` value if it does not exists
 
 ```php
@@ -129,7 +131,7 @@ Arr::getNestedElement($array, ['nonexistent', 'key'], 'default') -> 'default'
 Arr::getNestedElement($array, 'nonexistent.key.without.default') -> null
 ```
 
-## `setNestedElement(array $array, mixed $keys, mixed $value): array`
+### `setNestedElement(array $array, mixed $keys, mixed $value): array`
 Set array element specified by keys to the desired value (create missing keys if necessary)
 
 ```php
@@ -153,7 +155,7 @@ Arr::setNestedElement($array, 'foo.[].foo', 'bar') ->
 Arr::setNestedElement([], '[].[].[]', 'test') -> [ [ [ 'test' ] ] ]
 ```
 
-## `unpack(array $array, array $keys = []): array`
+### `unpack(array $array, array $keys = []): array`
 Converts multidimensional array to map of keys concatenated by dot and corresponding values
 
 ```php
@@ -181,7 +183,9 @@ Arr::unpack($array) ->
 ]
 ```
 
-## `check(array $array, mixed|callable $condition, bool $strict = false): bool`
+# Validation
+
+### `check(array $array, mixed|callable $condition, bool $strict = false): bool`
 Check if every element of an array meets specified condition
 
 ```php
@@ -203,7 +207,7 @@ Arr::check($array, function ($value) { return $value; }, true) -> false
 Arr::check($array, function ($value) { return $value === 1; }, true) -> true
 ```
 
-## `isEmpty(mixed $array): bool`
+### `isEmpty(mixed $array): bool`
 Recursively check if all of array values match empty condition
 
 ```php
@@ -215,7 +219,7 @@ Arr::isEmpty([0 => [0], [], null, [false]) -> true
 Arr::isEmpty([0 => [0 => 'a'], [], null, [false]]) -> false
 ```
 
-## `isAssoc(array $array, bool $strict = false): bool`
+### `isAssoc(array $array, bool $strict = false): bool`
 Check if array is associative
 
 ```php
@@ -240,7 +244,7 @@ Arr::isAssoc([1, 2, 3], true) -> false
 Arr::isAssoc([0 => 1, 1 => 2, 2 => 3], true) -> false
 ```
 
-## `isNumeric(array $array): bool`
+### `isNumeric(array $array): bool`
 Check if array contain only numeric values
 
 ```php
@@ -249,7 +253,7 @@ Arr::isNumeric([1, '2', '3e10', 5.0002]) -> true
 Arr::isNumeric([1, '2', '3e10', 5.0002, 'a']) -> false
 ```
 
-## `isUnique(array $array, bool $strict = false): bool`
+### `isUnique(array $array, bool $strict = false): bool`
 Check if array values are unique
 
 ```php
@@ -259,7 +263,7 @@ Arr::isUnique([1, '1', true]) -> false
 Arr::isUnique([1, '1', true], true) -> true
 ```
 
-## `isArrayOfArrays(array $array): bool`
+### `isArrayOfArrays(array $array): bool`
 Check if every array element is array
 
 ```php
@@ -270,7 +274,11 @@ Arr::isArrayOfArrays([[], []]) -> true
 Arr::isArrayOfArrays([1, 2 => []]) -> false
 ```
 
-## `map(array $array, callable $callback, int $mode = Arr::MAP_ARRAY_KEY_VALUE): array`
+# Manipulation
+
+## Map
+
+### `map(array $array, callable $callback, int $mode = Arr::MAP_ARRAY_KEY_VALUE): array`
 Applies a callback to the elements of given array. Arguments supplied to callback differs depending on selected `$mode`
 
 *For backward compatibility using map(callable, array) is still possible but is deprecated and will issue appropriate warning*
@@ -328,7 +336,7 @@ Arr::map($array2, $mapValueKeysList, Arr::MAP_ARRAY_VALUE_KEYS_LIST) ->
 ]
 ```
 
-## `mapObjects(array $objects, string $method, ...$args): array`
+### `mapObjects(array $objects, string $method, ...$args): array`
 Map array of object to values returned from objects method
 
 ```php
@@ -343,7 +351,9 @@ Arr::mapObjects($array, 'test') -> [1, 1, 1]
 Arr::mapObjects($array, 'test', 2) -> [3, 3, 3]
 ```
 
-## `filterByKeys(array $array, mixed $keys, bool $exclude = false): array`
+## Filter
+
+### `filterByKeys(array $array, mixed $keys, bool $exclude = false): array`
 Filter array values by preserving only those which keys are present in array obtained from $keys variable
 
 ```php
@@ -361,7 +371,7 @@ Arr::filterByKeys($array, [null, 0, '']) -> []
 Arr::filterByKeys($array, [null, 0, ''], true) -> $array
 ```
 
-## `filterObjects(array $objects, string $method, ...$args): array`
+### `filterObjects(array $objects, string $method, ...$args): array`
 Filter objects array using return value of specified method
 
 This method also filter values other than objects by standard boolean comparison
@@ -379,7 +389,9 @@ Arr::filterObjects($array, 'test') -> [$object, 'foo', $object]
 Arr::filterObjects($array, 'test', false) -> ['foo']
 ```
 
-## `group(array $array, string|int $key): array`
+## Group
+
+### `group(array $array, string|int $key): array`
 Group array of arrays by value of element with specified key
 
 ```php
@@ -426,7 +438,7 @@ Arr::group($array, 'key3') ->
 Arr::group($array, 'key4') -> []
 ```
 
-## `groupObjects(array $objects, string $method, ...$args): array`
+### `groupObjects(array $objects, string $method, ...$args): array`
 Group array of objects by value returned from specified method
 
 ```php
@@ -455,7 +467,9 @@ Arr::flattenSingle(Arr::groupObjects([$object1, $object2], 'test')) ->
 ]
 ```
 
-## `orderByKeys(array $array, mixed $keys, bool $appendUnmatched = true): array`
+## Order
+
+### `orderByKeys(array $array, mixed $keys, bool $appendUnmatched = true): array`
 Order associative array according to supplied keys order
 
 ```php
@@ -494,7 +508,7 @@ Arr::orderByKeys($array, 'a.0.c', false) ->
 ]
 ```
 
-## `sortByKeys(array $array, mixed $keys = null, bool $assoc = true): array`
+### `sortByKeys(array $array, mixed $keys = null, bool $assoc = true): array`
 Sort array of arrays using value specified by key(s)
 
 ```php
@@ -522,7 +536,9 @@ Arr::sortByKeys(['a' => 3, 'b' => 1, 'c' => 6]) -> ['b' => 1, 'a' => 3, 'c' => 6
 Arr::sortByKeys(['a' => 3, 'b' => 1, 'c' => 6], null, false) -> [1, 3, 6]
 ```
 
-## `sum(array ...$arrays): array`
+## Computations
+
+### `sum(array ...$arrays): array`
 Sum associative arrays by their keys into one array
 
 ```php
@@ -565,7 +581,7 @@ Arr::sum(...$arrays) ->
 Arr::sum([null, '', false], ['1', true, 'test']) -> [1, 1, 0]
 ```
 
-## `diffObjects(array $array1, array $array2, array ...$arrays): array`
+### `diffObjects(array $array1, array $array2, array ...$arrays): array`
 Differentiate two or more arrays of objects
 
 ```php
@@ -580,7 +596,9 @@ Arr::diffObjects([$object3, $object1, $object2], [$object3], [$object1, $object2
 Arr::diffObjects([$object1], [$object3], [$object2], []) -> [$object1]
 ```
 
-## `flatten(array $array, ?int $depth = null, bool $assoc = false): array`
+## Flattening
+
+### `flatten(array $array, ?int $depth = null, bool $assoc = false): array`
 Flatten array of arrays to a n-depth array
 
 ```php
@@ -650,7 +668,7 @@ Arr::flatten($array, null, true) ->
 ]
 ```
 
-## `flattenSingle(array $array): array`
+### `flattenSingle(array $array): array`
 Flatten single element arrays (also nested single element arrays)
 
 ```php
@@ -685,7 +703,9 @@ Arr::flattenSingle([['a']]) -> ['a']
 Arr::flattenSingle([]) -> []
 ```
 
-## `createMulti(array $keys, ?array $values = null): array`
+# Utilities
+
+### `createMulti(array $keys, ?array $values = null): array`
  Create multidimensional array using either first param as config of keys and values or separate keys and values arrays
 
 ```php
@@ -736,7 +756,7 @@ Arr::createMulti([
 Arr::createMulti([]) -> []
 ```
 
-## `forceArray(mixed $var, int $flag = self::FORCE_ARRAY_ALL): mixed`
+### `forceArray(mixed $var, int $flag = self::FORCE_ARRAY_ALL): mixed`
 Make variable an array (according to flag settings)
 
 ```php
@@ -761,7 +781,7 @@ Arr::forceArray($object) -> [$object]
 Arr::forceArray($object, Arr::FORCE_ARRAY_PRESERVE_ARRAY_OBJECTS) -> $object
 ```
 
-## `clone(array $array): array`
+### `clone(array $array): array`
 Copy array and clone every object inside it
 
 ```php
@@ -791,7 +811,7 @@ $cloned[2]->counter -> 2
 $cloned['nested']['object']->counter -> 2
 ```
 
-## `random(array $array, int $count = 1): mixed`
+### `random(array $array, int $count = 1): mixed`
 Get random array value(s)
 
 ```php
@@ -813,7 +833,7 @@ Arr::random($array, 2) -> ['b' => 2, 'e' => 5]
 Arr::random($array, 2) -> ['c' => 3, 'b' => 2]
 ```
 
-## `shuffle(array $array): array`
+### `shuffle(array $array): array`
 Shuffle array preserving keys and returning new shuffled array
 
 ```php
@@ -844,7 +864,7 @@ Arr::shuffle($array) ->
 ]
 ```
 
-## `nth(array $array, int $A = 1, int $B = 0): array`
+### `nth(array $array, int $A = 1, int $B = 0): array`
 Gets array elements with index matching condition $An + $B (preserving original keys)
 
 ```php
