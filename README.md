@@ -70,6 +70,7 @@ Here, you can quickly get started by becoming familiar with each and every metho
 * Computations
     * [sum](#sumarray-arrays-array)
     * [diffObjects](#diffobjectsarray-array1-array-array2-array-arrays-array)
+    * [intersectObjects](#intersectobjectsarray-array1-array-array2-array-arrays-array)
 * Flattening
     * [flatten](#flattenarray-array-int-depth--null-bool-assoc--false-array)
     * [flattenSingle](#flattensinglearray-array-array)
@@ -611,7 +612,7 @@ Arr::sum([null, '', false], ['1', true, 'test']) -> [1, 1, 0]
 ```
 
 ### `diffObjects(array $array1, array $array2, array ...$arrays): array`
-Differentiate two or more arrays of objects
+Compute difference between two or more arrays of objects
 
 ```php
 $object1 = new \stdClass();
@@ -623,6 +624,21 @@ Arr::diffObjects([$object3, $object1, $object2], [$object3], [$object2]) -> [1 =
 Arr::diffObjects([$object3, $object1, $object2], [$object3], [$object1, $object2]) -> []
 
 Arr::diffObjects([$object1], [$object3], [$object2], []) -> [$object1]
+```
+
+### `intersectObjects(array $array1, array $array2, array ...$arrays): array`
+Compute intersection between two or more arrays of objects
+
+```php
+$object1 = new \stdClass();
+$object2 = new \stdClass();
+$object3 = new \stdClass();
+
+Arr::intersectObjects([$object3, $object1, $object2], [$object3, $object2], [$object2]) -> [2 => $object2]
+
+Arr::intersectObjects([$object3, $object1, $object2], [$object3], [$object1, $object2]) -> []
+
+Arr::intersectObjects([$object1, $object2, $object3, $object1], [$object1, $object2]) -> [$object1, $object2, 3 => $object1]
 ```
 
 ## Flattening

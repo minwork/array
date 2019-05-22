@@ -607,7 +607,7 @@ class Arr
     }
 
     /**
-     * Differentiate two or more arrays of objects
+     * Compute difference between two or more arrays of objects
      *
      * @param array $array1
      * @param array $array2
@@ -623,6 +623,25 @@ class Arr
         });
 
         return array_udiff(...$arguments);
+    }
+
+    /**
+     * Compute intersection between two or more arrays of objects
+     *
+     * @param array $array1
+     * @param array $array2
+     * @param array[] $arrays
+     * @return array
+     */
+    public static function intersectObjects(array $array1, array $array2, array ...$arrays): array
+    {
+        $arguments = $arrays;
+        array_unshift($arguments, $array1, $array2);
+        array_push($arguments, function ($obj1, $obj2) {
+            return strcmp(spl_object_hash($obj1), spl_object_hash($obj2));
+        });
+
+        return array_uintersect(...$arguments);
     }
 
     /**

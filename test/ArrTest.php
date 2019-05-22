@@ -685,6 +685,17 @@ class ArrTest extends TestCase
         $this->assertSame([$object1], Arr::diffObjects([$object1], [$object3], [$object2], []));
     }
 
+    public function testIntersectObjects()
+    {
+        $object1 = new stdClass();
+        $object2 = new stdClass();
+        $object3 = new stdClass();
+
+        $this->assertSame([2 => $object2], Arr::intersectObjects([$object3, $object1, $object2], [$object3, $object2], [$object2]));
+        $this->assertSame([], Arr::intersectObjects([$object3, $object1, $object2], [$object3], [$object1, $object2]));
+        $this->assertSame([$object1, $object2, 3 => $object1], Arr::intersectObjects([$object1, $object2, $object3, $object1], [$object1, $object2]));
+    }
+
     public function testFlatten()
     {
         $array = [
