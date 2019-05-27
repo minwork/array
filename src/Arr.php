@@ -305,7 +305,24 @@ class Arr
     }
 
     /**
-     * Check if every array element is array
+     * Check if any element of an array is also an array
+     *
+     * @param array $array
+     * @return bool
+     */
+    public static function isNested(array $array): bool
+    {
+        foreach ($array as $element) {
+            if (is_array($element)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if every element of an array is array
      *
      * @param array $array
      * @return bool
@@ -781,6 +798,36 @@ class Arr
         return $var;
     }
 
+
+    /**
+     * Get nesting depth of an array.<br>
+     * <br>
+     * Depth is calculated by counting amount of nested arrays - each nested array increase depth by one.
+     * Nominal depth of an array is 1.
+     *
+     * @param array $array
+     * @return int
+     */
+    public static function getDepth(array $array): int
+    {
+        $depth = 0;
+        $queue = [$array];
+
+        do {
+            ++$depth;
+            $current = $queue;
+            $queue = [];
+            foreach ($current as $element) {
+                foreach ($element as $value) {
+                    if (is_array($value)) {
+                        $queue[] = $value;
+                    }
+                }
+            }
+        } while(!empty($queue));
+
+        return $depth;
+    }
 
     /**
      * Copy array and clone every object inside it

@@ -52,6 +52,7 @@ Here, you can quickly get started by becoming familiar with each and every metho
 * [isAssoc](#isassocarray-array-bool-strict--false-bool)
 * [isNumeric](#isnumericarray-array-bool)
 * [isUnique](#isuniquearray-array-bool-strict--false-bool)
+* [isNested](#isnestedarray-array-bool)
 * [isArrayOfArrays](#isarrayofarraysarray-array-bool)
 ### Manipulation
 * Mapping
@@ -77,6 +78,7 @@ Here, you can quickly get started by becoming familiar with each and every metho
 ### Utilities
 * [createMulti](#createmultiarray-keys-array-values--null-array)
 * [forceArray](#forcearraymixed-var-int-flag--selfforce_array_all-mixed)
+* [getDepth](#getdeptharray-array-int)
 * [clone](#clonearray-array-array)
 * [random](#randomarray-array-int-count--1-mixed)
 * [shuffle](#shufflearray-array-array)
@@ -263,6 +265,19 @@ Check if array values are unique
 Arr::isUnique([1, '1', true]) -> false
 
 Arr::isUnique([1, '1', true], true) -> true
+```
+
+### `isNested(array $array): bool`
+Check if any element of an array is also an array
+
+```php
+Arr::isNested([]) -> false
+
+Arr::isNested([1, 2, 3]) -> false
+
+Arr::isNested([1, 2 => [], 3]) -> true
+
+Arr::isNested([1, 2 => [[[]]], 3 => []]) -> true
 ```
 
 ### `isArrayOfArrays(array $array): bool`
@@ -824,6 +839,27 @@ $object = new ArrayObject();
 Arr::forceArray($object) -> [$object]
 // With this flag objects implementing ArrayAccess remain intact
 Arr::forceArray($object, Arr::FORCE_ARRAY_PRESERVE_ARRAY_OBJECTS) -> $object
+```
+
+### `getDepth(array $array): int`
+Get nesting depth of an array
+
+```php
+Arr::getDepth([]) -> 1
+
+Arr::getDepth([1, 2, 3]) -> 1
+
+Arr::getDepth([1, 2 => [], 3]) -> 2
+
+Arr::getDepth([
+    1, 
+    2 => [
+        3 => [
+            4 => []
+        ]
+    ], 
+    5 => []
+]) -> 4
 ```
 
 ### `clone(array $array): array`

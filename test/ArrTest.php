@@ -238,6 +238,15 @@ class ArrTest extends TestCase
         $this->assertFalse(Arr::isUnique([1, 1, 1], true));
     }
 
+    public function testIsNested()
+    {
+        $this->assertFalse(Arr::isNested([]));
+        $this->assertFalse(Arr::isNested([1, 2, 3, 'a', 'b']));
+        $this->assertTrue(Arr::isNested([[], []]));
+        $this->assertTrue(Arr::isNested([[]]));
+        $this->assertTrue(Arr::isNested([1, 2 => []]));
+    }
+
     public function testIsArrayOfArrays()
     {
         $this->assertFalse(Arr::isArrayOfArrays([]));
@@ -981,6 +990,33 @@ class ArrTest extends TestCase
         $this->assertSame(['test'], Arr::forceArray('test'));
         $this->assertSame(['1'], Arr::forceArray('1'));
         $this->assertSame([$function], Arr::forceArray($function));
+    }
+
+    public function testGetDepth()
+    {
+        $this->assertSame(1, Arr::getDepth([]));
+        $this->assertSame(1, Arr::getDepth([1, 2, 3, 4, 'a', 'b', 'c']));
+        $this->assertSame(2, Arr::getDepth([[]]));
+        $this->assertSame(5, Arr::getDepth([
+            [],
+            'a' => [
+                'b' => [
+                    'c' => 2,
+                    'd' => [
+                        [],
+                        'e' => 'test',
+                    ],
+                    [
+                        'f' => []
+                    ]
+                ]
+            ],
+            10,
+            'foo' => [
+                'bar',
+                []
+            ]
+        ]));
     }
 
     public function testClone()
