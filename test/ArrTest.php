@@ -120,24 +120,70 @@ class ArrTest extends TestCase
                     'key3' => ['test', 'test2'],
                     'key4' => 'test3'
                 ],
-                1
+                1 => ['a' => 'b', 'c'],
             ],
-            2,
+            2 => [3 => 4, 5 => 6],
             4 => 56
         ];
         $array2 = [1, 2, 3, 4, 5];
 
+
+        // Test default mode
         $this->assertSame([
             'key1.key2.key3.0' => 'test',
             'key1.key2.key3.1' => 'test2',
             'key1.key2.key4' => 'test3',
-            'key1.0' => 1,
-            0 => 2,
+            'key1.1.a' => 'b',
+            'key1.1.0' => 'c',
+            '2.3' => 4,
+            '2.5' => 6,
             4 => 56,
 
         ], Arr::unpack($array));
 
         $this->assertSame($array2, Arr::unpack($array2));
+
+
+        // Test UNPACK_PRESERVE_LIST_ARRAY mode
+        $this->assertSame([
+            'key1.key2.key3' => ['test', 'test2'],
+            'key1.key2.key4' => 'test3',
+            'key1.1.a' => 'b',
+            'key1.1.0' => 'c',
+            '2.3' => 4,
+            '2.5' => 6,
+            4 => 56,
+
+        ], Arr::unpack($array, Arr::UNPACK_PRESERVE_LIST_ARRAY));
+
+        $this->assertSame($array2, Arr::unpack($array2, Arr::UNPACK_PRESERVE_LIST_ARRAY));
+
+
+        // Test UNPACK_PRESERVE_ASSOC_ARRAY mode
+        $this->assertSame([
+            'key1.key2.key3.0' => 'test',
+            'key1.key2.key3.1' => 'test2',
+            'key1.key2.key4' => 'test3',
+            'key1.1' => ['a' => 'b', 0 => 'c'],
+            2 => [3 => 4, 5 => 6],
+            4 => 56,
+
+        ], Arr::unpack($array, Arr::UNPACK_PRESERVE_ASSOC_ARRAY));
+
+        $this->assertSame($array2, Arr::unpack($array2, Arr::UNPACK_PRESERVE_ASSOC_ARRAY));
+
+
+        // Test UNPACK_PRESERVE_ARRAY mode
+        $this->assertSame([
+            'key1.key2.key3' => ['test', 'test2'],
+            'key1.key2.key4' => 'test3',
+            'key1.1' => ['a' => 'b', 0 => 'c'],
+            2 => [3 => 4, 5 => 6],
+            4 => 56,
+
+        ], Arr::unpack($array, Arr::UNPACK_PRESERVE_ARRAY));
+
+        $this->assertSame($array2, Arr::unpack($array2, Arr::UNPACK_PRESERVE_ARRAY));
     }
 
     /********************************* Validation *********************************/

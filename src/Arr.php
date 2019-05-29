@@ -32,8 +32,22 @@ class Arr
     const MAP_ARRAY_VALUE_KEYS_LIST = 2;
     const MAP_ARRAY_KEYS_ARRAY_VALUE = 4;
 
+    const UNPACK_ALL = 1;
+    /**
+     * Preserve arrays with highest nesting level (if they are not assoc) as element values instead of unpacking them
+     */
+    const UNPACK_PRESERVE_LIST_ARRAY = 2;
+    /**
+     * Preserve arrays with highest nesting level (if they are assoc) as element values instead of unpacking them
+     */
+    const UNPACK_PRESERVE_ASSOC_ARRAY = 4;
+    /**
+     * Preserve all arrays with highest nesting level as element values instead of unpacking them
+     */
+    const UNPACK_PRESERVE_ARRAY = 8;
 
     private const AUTO_INDEX_KEY = '[]';
+    private const KEY_SEPARATOR = '.';
 
     /*--------------------------------------------------------------------------------------*\
      |                                        Common                                        |
@@ -58,7 +72,7 @@ class Arr
     public static function getKeysArray($keys): array
     {
         if (is_string($keys)) {
-            return empty($keys) ? [] : explode('.', $keys);
+            return empty($keys) ? [] : explode(self::KEY_SEPARATOR, $keys);
         }
         return is_null($keys) ? [] : array_filter(array_values(self::forceArray($keys)), function ($value) {
             return $value !== null && $value !== '' && (is_string($value) || is_int($value));
@@ -153,21 +167,34 @@ class Arr
      * Converts multidimensional array to map of keys concatenated by dot and corresponding values
      *
      * @param array $array
-     * @param array $keys Internal keys storage used for recursive calls
+     * @param int $mode Modify behaviour of unpack (see description of Arr::UNPACK_ constants)
      * @return array
      */
-    public static function unpack(array $array, array $keys = []): array
+    public static function unpack(array $array, int $mode = self::UNPACK_ALL): array
+    {
+        return self::_unpack($array, $mode);
+    }
+
+    private static function _unpack(array $array, int $mode = self::UNPACK_ALL, array $keys = []): array
     {
         $result = [];
 
         foreach ($array as $key => $value) {
 
-            if (is_array($value)) {
+            if (is_array($value) && !(
+                    // Check if value IS NOT a subject for preserve mode
+                    !self::isNested($value) && // Preserve mode only work for highest depth elements
+                    (
+                        ($mode === self::UNPACK_PRESERVE_LIST_ARRAY && !self::isAssoc($value, true)) ||
+                        ($mode === self::UNPACK_PRESERVE_ASSOC_ARRAY && self::isAssoc($value, true)) ||
+                        $mode === self::UNPACK_PRESERVE_ARRAY
+                    )
+                )) {
                 $keys[] = $key;
-                $result += self::unpack($value, $keys);
+                $result += self::_unpack($value, $mode, $keys);
                 array_pop($keys);
             } else {
-                $result[implode('.', array_merge($keys, [$key]))] = $value;
+                $result[implode(self::KEY_SEPARATOR, array_merge($keys, [$key]))] = $value;
             }
         }
 
@@ -251,7 +278,9 @@ class Arr
      *
      * @param array $array
      * @param bool $strict
-     *            If false then this function will match any array that doesn't contain integer keys
+     * <p>If <i>false</i> then this function will match any array that doesn't contain integer keys.</p>
+     * <p>If <i>true</i> then this function match only arrays with sequence of integers starting from zero (range from 0 to elements_number - 1) as keys.</p>
+     *
      * @return boolean
      */
     public static function isAssoc(array $array, bool $strict = false): bool
@@ -772,7 +801,7 @@ class Arr
      * Make variable an array (according to flag settings)
      *
      * @param mixed $var
-     * @param int $flag Set flag(s) to preserve specific values from being converted to array
+     * @param int $flag Set flag(s) to preserve specific values from being converted to array (see Arr::FORCE_ARRAY_ constants)
      * @return array
      */
     public static function forceArray($var, int $flag = self::FORCE_ARRAY_ALL)

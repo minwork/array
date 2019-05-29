@@ -45,7 +45,7 @@ Here, you can quickly get started by becoming familiar with each and every metho
 * [hasKeys](#haskeysarray-array-mixed-keys-bool-strict--false-bool)
 * [getNestedElement](#getnestedelementarrayarrayaccess-array-mixed-keys-mixed-default--null-mixed)
 * [setNestedElement](#setnestedelementarray-array-mixed-keys-mixed-value-array)
-* [unpack](#unpackarray-array-array-keys---array)
+* [unpack](#unpackarray-array-int-mode--arrunpack_all-array)
 ### Validation
 * [check](#checkarray-array-mixedcallable-condition-bool-strict--false-bool)
 * [isEmpty](#isemptymixed-array-bool)
@@ -159,7 +159,7 @@ Arr::setNestedElement($array, 'foo.[].foo', 'bar') ->
 Arr::setNestedElement([], '[].[].[]', 'test') -> [ [ [ 'test' ] ] ]
 ```
 
-### `unpack(array $array, array $keys = []): array`
+### `unpack(array $array, int $mode = Arr::UNPACK_ALL): array`
 Converts multidimensional array to map of keys concatenated by dot and corresponding values
 
 ```php
