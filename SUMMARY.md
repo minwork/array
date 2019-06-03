@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Getting started](README.md)
+* [Minwork Array](README.md)
 
 ## Documentation
 
