@@ -112,6 +112,37 @@ class ArrTest extends TestCase
         $this->assertSame([[[[]]]], Arr::setNestedElement([], '[].[].[]', []));
     }
 
+    public function testPack()
+    {
+        $result = [
+            'key1' => [
+                'key2' => [
+                    'key3' => ['test', 'test2'],
+                    'key4' => 'test3'
+                ],
+                1 => ['a' => 'b', 'c'],
+            ],
+            2 => [3 => 4, 5 => 6],
+            4 => 56
+        ];
+        $input = [
+            'key1.key2.key3.0' => 'test',
+            'key1.key2.key3.1' => 'test2',
+            'key1.key2.key4' => 'test3',
+            'key1.1.a' => 'b',
+            'key1.1.0' => 'c',
+            '2.3' => 4,
+            '2.5' => 6,
+            4 => 56,
+
+        ];
+        $array2 = [1, 2, 3, 4, 5];
+
+        $this->assertSame($result, Arr::pack($input));
+        $this->assertSame($array2, Arr::pack($array2));
+        $this->assertSame($result, Arr::pack(Arr::unpack($result)));
+    }
+
     public function testUnpack()
     {
         $array = [

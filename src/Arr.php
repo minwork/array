@@ -164,6 +164,23 @@ class Arr
     }
 
     /**
+     * Converts map of keys concatenated by dot and corresponding values to multidimensional array
+     *
+     * @param array $array
+     * @return array
+     */
+    public static function pack(array $array): array
+    {
+        $result = [];
+
+        foreach ($array as $key => $value) {
+            $result = self::setNestedElement($result, $key, $value);
+        }
+
+        return $result;
+    }
+
+    /**
      * Converts multidimensional array to map of keys concatenated by dot and corresponding values
      *
      * @param array $array
