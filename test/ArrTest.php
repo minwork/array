@@ -38,6 +38,36 @@ class ArrTest extends TestCase
         $this->assertSame([], Arr::getKeysArray(null));
     }
 
+    public function testHas()
+    {
+        $array = [
+            'test' => [
+                'test1',
+                'test2' => [
+                    'test3' => 'abc',
+                    'test4'
+                ],
+                [
+                    'test6' => 'def'
+                ],
+            ],
+        ];
+
+        $this->assertTrue(Arr::has($array, 'test'));
+        $this->assertTrue(Arr::has($array, 'test.test2'));
+        $this->assertTrue(Arr::has($array, 'test.test2.test3'));
+        $this->assertTrue(Arr::has($array, 'test.0'));
+        $this->assertTrue(Arr::has($array, 'test.1.test6'));
+        $this->assertTrue(Arr::has($array, ['test', 1, 'test6']));
+
+        $this->assertFalse(Arr::has($array, []));
+        $this->assertFalse(Arr::has($array, new stdClass()));
+        $this->assertFalse(Arr::has($array, 0));
+        $this->assertFalse(Arr::has($array, 'test2'));
+        $this->assertFalse(Arr::has($array, 'test.test1'));
+        $this->assertFalse(Arr::has($array, 'test.test2.test4'));
+    }
+
     public function testHasKeys()
     {
         $array = ['key1' => 1, 'key2' => 2, 'key3' => 3];
@@ -73,6 +103,13 @@ class ArrTest extends TestCase
         $this->assertSame('test', Arr::getNestedElement($object, 'key'));
         $this->assertNull(Arr::getNestedElement($object, 'key2'));
         $this->assertSame('test2', Arr::getNestedElement($object, 'nested.key'));
+
+        // Test alias
+        $this->assertSame(Arr::getNestedElement($array, 'key1.key2.key3'), Arr::get($array, 'key1.key2.key3'));
+        $this->assertSame(Arr::getNestedElement($array, 'key1.key2.key3', 'default'), Arr::get($array, 'key1.key2.key3', 'default'));
+        /** @noinspection PhpParamsInspection */
+        $this->assertSame(Arr::getNestedElement(new stdClass(), 'key1.key4.key2.key3', 'default'), Arr::get(new stdClass(), 'key1.key4.key2.key3', 'default'));
+        $this->assertSame(Arr::getNestedElement($object, 'nested.key'), Arr::get($object, 'nested.key'));
     }
 
     public function testSetNestedElement()
@@ -110,6 +147,78 @@ class ArrTest extends TestCase
 
         $this->assertSame([[['test']]], Arr::setNestedElement([], '[].[].[]', 'test'));
         $this->assertSame([[[[]]]], Arr::setNestedElement([], '[].[].[]', []));
+
+        // Test alias
+        $this->assertSame(Arr::setNestedElement([], '[].[].[]', 'test'), Arr::set([], '[].[].[]', 'test'));
+        $this->assertSame(Arr::setNestedElement($array, 'test.test2.test3', 'abc'), Arr::set($array, 'test.test2.test3', 'abc'));
+        $this->assertSame(Arr::setNestedElement($array, 'key1.key2', ['key3' => 'test']), Arr::set($array, 'key1.key2', ['key3' => 'test']));
+    }
+
+    public function testUnset()
+    {
+        $array = [
+            'test' => [
+                'test1',
+                'test2' => [
+                    'test3' => 'abc',
+                    'test4'
+                ],
+                [
+                    'test6' => 'def'
+                ],
+            ],
+        ];
+
+        $this->assertSame([], Arr::unset($array, 'test'));
+        $this->assertSame([
+            'test' => [
+                'test1',
+                [
+                    'test6' => 'def'
+                ],
+            ],
+        ], Arr::unset($array, 'test.test2'));
+
+        $this->assertSame([
+            'test' => [
+                'test2' => [
+                    'test3' => 'abc',
+                    'test4'
+                ],
+                1 => [
+                    'test6' => 'def'
+                ],
+            ]
+        ], Arr::unset($array, 'test.0'));
+
+        $this->assertSame([
+            'test' => [
+                'test1',
+                'test2' => [
+                    'test4'
+                ],
+                [
+                    'test6' => 'def'
+                ],
+            ],
+        ], Arr::unset($array, 'test.test2.test3'));
+
+        $this->assertSame([
+            'test' => [
+                'test1',
+                'test2' => [
+                    'test3' => 'abc',
+                    'test4'
+                ],
+                [],
+            ],
+        ], Arr::unset($array, 'test.1.test6'));
+
+        $this->assertSame($array, Arr::unset($array, '0'));
+        $this->assertSame($array, Arr::unset($array, 'test.test1'));
+        $this->assertSame($array, Arr::unset($array, 'test.test2.test4'));
+        $this->assertSame($array, Arr::unset($array, 'test.test2.test4.test5.test6.abc'));
+        $this->assertSame($array, Arr::unset($array, 'test.2'));
     }
 
     public function testPack()

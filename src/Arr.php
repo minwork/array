@@ -80,15 +80,41 @@ class Arr
     }
 
     /**
-     * Check if array has specified keys
+     * Check if specified (nested) key(s) exists in array
      *
      * @param array $array
-     * @param mixed $keys
-     *            See getKeysArray method
-     * @param bool $strict
-     *            If array must have all of specified keys
+     * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
      * @return bool
-     * @see \Minwork\Helper\Arr::getKeysArray()
+     * @see Arr::getKeysArray()
+     */
+    public static function has(array $array, $keys): bool
+    {
+        $keysArray = self::getKeysArray($keys);
+
+        if (empty($keysArray)) {
+            return false;
+        }
+
+        $tmp = $array;
+
+        foreach ($keysArray as $key) {
+            if (!array_key_exists($key, $tmp)) {
+                 return false;
+            }
+            $tmp = $tmp[$key];
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if array has list of specified keys
+     *
+     * @param array $array
+     * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
+     * @param bool $strict If array must have all of specified keys
+     * @return bool
+     * @see Arr::getKeysArray()
      */
     public static function hasKeys(array $array, $keys, bool $strict = false): bool
     {
@@ -103,16 +129,27 @@ class Arr
     }
 
     /**
+     * Alias of Arr::getNestedElement
+     *
+     * @param array|ArrayAccess $array Array or object implementing array access to get element from
+     * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
+     * @param mixed $default Default value if element was not found
+     * @return null|mixed
+     * @see Arr::getNestedElement()
+     */
+    public static function get($array, $keys, $default = null)
+    {
+        return self::getNestedElement($array, $keys, $default);
+    }
+
+    /**
      * Get nested element of an array or object implementing array access
      *
-     * @param array|ArrayAccess $array
-     *            Array or object implementing array access to get element from
-     * @param mixed $keys
-     *            See getKeysArray method
-     * @param mixed $default
-     *            Default value if element was not found
+     * @param array|ArrayAccess $array Array or object implementing array access to get element from
+     * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
+     * @param mixed $default Default value if element was not found
      * @return null|mixed
-     * @see \Minwork\Helper\Arr::getKeysArray()
+     * @see Arr::getKeysArray()
      */
     public static function getNestedElement($array, $keys, $default = null)
     {
@@ -131,14 +168,27 @@ class Arr
     }
 
     /**
+     * Alias of Arr::setNestedElement
+     *
+     * @param array $array
+     * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
+     * @param mixed $value Value to set
+     * @return array Copy of an array with element set
+     * @see Arr::setNestedElement()
+     */
+    public static function set(array $array, $keys, $value): array
+    {
+        return self::setNestedElement($array, $keys, $value);
+    }
+
+    /**
      * Set array element specified by keys to the desired value (create missing keys if necessary)
      *
      * @param array $array
      * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
      * @param mixed $value Value to set
      * @return array Copy of an array with element set
-     * @see \Minwork\Helper\Arr::getKeysArray
-     * @see \Minwork\Helper\Arr::getKeysArray()
+     * @see Arr::getKeysArray()
      */
     public static function setNestedElement(array $array, $keys, $value): array
     {
@@ -159,6 +209,35 @@ class Arr
             $tmp = &$tmp[$key];
         }
         $tmp = $value;
+
+        return $result;
+    }
+
+    /**
+     * Destroy variable inside array at path specified by keys
+     *
+     * @param array $array
+     * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
+     * @return array
+     * @see Arr::getKeysArray()
+     */
+    public static function unset(array $array, $keys): array
+    {
+        $result = self::clone($array);
+        $keysArray = self::getKeysArray($keys);
+
+        $tmp = &$result;
+
+        while (count($keysArray) > 1) {
+            $key = array_shift($keysArray);
+            if (!is_array($tmp) || !array_key_exists($key, $tmp)) {
+                return $result;
+            }
+
+            $tmp = &$tmp[$key];
+        }
+        $key = array_shift($keysArray);
+        unset($tmp[$key]);
 
         return $result;
     }
@@ -468,10 +547,10 @@ class Arr
      * Filter array values by preserving only those which keys are present in array obtained from $keys variable
      *
      * @param array $array
-     * @param mixed $keys See getKeysArray function
+     * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
      * @param bool $exclude If values matching $keys should be excluded from returned array
      * @return array
-     * @see \Minwork\Helper\Arr::getKeysArray()
+     * @see Arr::getKeysArray()
      */
     public static function filterByKeys(array $array, $keys, bool $exclude = false): array
     {
@@ -592,10 +671,10 @@ class Arr
      * Order associative array according to supplied keys order
      * Keys that are not present in $keys param will be appended to the end of an array preserving supplied order.
      * @param array $array
-     * @param mixed $keys See getKeysArray method
+     * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
      * @param bool $appendUnmatched If values not matched by supplied keys should be appended to the end of an array
      * @return array
-     * @see \Minwork\Helper\Arr::getKeysArray()
+     * @see Arr::getKeysArray()
      */
     public static function orderByKeys(array $array, $keys, bool $appendUnmatched = true): array
     {
@@ -617,7 +696,7 @@ class Arr
      * @param mixed $keys Keys in format specified by getKeysArray method or null to perform sort using 0-depth keys
      * @param bool $assoc If sorting should preserve main array keys (default: true)
      * @return array New sorted array
-     * @see \Minwork\Helper\Arr::getKeysArray()
+     * @see Arr::getKeysArray()
      */
     public static function sortByKeys(array $array, $keys = null, bool $assoc = true): array
     {
@@ -944,8 +1023,8 @@ class Arr
      * @param int $A
      * @param int $B
      * @return array
-     * @see \Minwork\Helper\Arr::even()
-     * @see \Minwork\Helper\Arr::odd()
+     * @see Arr::even()
+     * @see Arr::odd()
      */
     public static function nth(array $array, int $A = 1, int $B = 0): array
     {
