@@ -154,7 +154,7 @@ class ArrTest extends TestCase
         $this->assertSame(Arr::setNestedElement($array, 'key1.key2', ['key3' => 'test']), Arr::set($array, 'key1.key2', ['key3' => 'test']));
     }
 
-    public function testUnset()
+    public function testRemove()
     {
         $array = [
             'test' => [
@@ -169,7 +169,7 @@ class ArrTest extends TestCase
             ],
         ];
 
-        $this->assertSame([], Arr::unset($array, 'test'));
+        $this->assertSame([], Arr::remove($array, 'test'));
         $this->assertSame([
             'test' => [
                 'test1',
@@ -177,7 +177,7 @@ class ArrTest extends TestCase
                     'test6' => 'def'
                 ],
             ],
-        ], Arr::unset($array, 'test.test2'));
+        ], Arr::remove($array, 'test.test2'));
 
         $this->assertSame([
             'test' => [
@@ -189,7 +189,7 @@ class ArrTest extends TestCase
                     'test6' => 'def'
                 ],
             ]
-        ], Arr::unset($array, 'test.0'));
+        ], Arr::remove($array, 'test.0'));
 
         $this->assertSame([
             'test' => [
@@ -201,7 +201,7 @@ class ArrTest extends TestCase
                     'test6' => 'def'
                 ],
             ],
-        ], Arr::unset($array, 'test.test2.test3'));
+        ], Arr::remove($array, 'test.test2.test3'));
 
         $this->assertSame([
             'test' => [
@@ -212,13 +212,13 @@ class ArrTest extends TestCase
                 ],
                 [],
             ],
-        ], Arr::unset($array, 'test.1.test6'));
+        ], Arr::remove($array, 'test.1.test6'));
 
-        $this->assertSame($array, Arr::unset($array, '0'));
-        $this->assertSame($array, Arr::unset($array, 'test.test1'));
-        $this->assertSame($array, Arr::unset($array, 'test.test2.test4'));
-        $this->assertSame($array, Arr::unset($array, 'test.test2.test4.test5.test6.abc'));
-        $this->assertSame($array, Arr::unset($array, 'test.2'));
+        $this->assertSame($array, Arr::remove($array, '0'));
+        $this->assertSame($array, Arr::remove($array, 'test.test1'));
+        $this->assertSame($array, Arr::remove($array, 'test.test2.test4'));
+        $this->assertSame($array, Arr::remove($array, 'test.test2.test4.test5.test6.abc'));
+        $this->assertSame($array, Arr::remove($array, 'test.2'));
     }
 
     public function testPack()

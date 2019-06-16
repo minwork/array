@@ -214,14 +214,14 @@ class Arr
     }
 
     /**
-     * Destroy variable inside array at path specified by keys
+     * Remove element inside array at path specified by keys
      *
      * @param array $array
      * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
      * @return array
      * @see Arr::getKeysArray()
      */
-    public static function unset(array $array, $keys): array
+    public static function remove(array $array, $keys): array
     {
         $result = self::clone($array);
         $keysArray = self::getKeysArray($keys);
