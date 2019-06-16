@@ -29,5 +29,5 @@
 
 ## Documentation
 
-[https://minwork.gitbook.io/array/](https://minwork.gitbook.io/array/documentation-1/overview)
+[https://minwork.gitbook.io/array/](https://minwork.gitbook.io/array/documentation/)
 
