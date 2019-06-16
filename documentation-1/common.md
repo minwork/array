@@ -111,6 +111,60 @@ Arr::setNestedElement($array, 'foo.[].foo', 'bar') ->
 Arr::setNestedElement([], '[].[].[]', 'test') -> [ [ [ 'test' ] ] ]
 ```
 
+## pack
+
+#### Definition
+
+`pack(array $array): array`
+
+#### Description
+
+Converts map of keys concatenated by dot and corresponding values to multidimensional array.
+
+Inverse of [`unpack`](common.md#unpack).
+
+#### Examples
+
+Let's use result array from [example below](common.md#examples-5).
+
+```php
+$array = [
+    'key1.key2.key3.foo' => 'test',
+    'key1.key2.key3.bar' => 'test2',
+    'key1.abc.0' => 'test3',
+    'xyz' => 'test4',
+    '0' => 'test5',
+];
+
+Arr::pack($array) -> 
+[
+    'key1' => [
+        'key2' => [
+            'key3' => [
+                'foo' => 'test',
+                'bar' => 'test2',
+            ]
+        ]
+        'abc' => ['test3'],
+    ],
+    'xyz' => 'test4',
+    'test5'
+]
+
+// Unpack is inverse operation to pack
+$array2 = [
+    'test',
+    [
+        'foo' => ['bar'],
+        'a' => [
+            'b' => 1
+        ]
+    ]
+];
+
+Arr::unpack(Arr::pack($array2)) === $array2 -> true
+```
+
 ## unpack
 
 #### Definition
@@ -120,6 +174,17 @@ Arr::setNestedElement([], '[].[].[]', 'test') -> [ [ [ 'test' ] ] ]
 #### Description
 
 Converts multidimensional array to map of keys concatenated by dot and corresponding values.
+
+Inverse of [`pack`](common.md#pack).
+
+#### Modes
+
+| Mode | Description |
+| :--- | :--- |
+| `Arr::UNPACK_ALL` | Every array will be unpacked |
+| `Arr::UNPACK_PRESERVE_LIST_ARRAY` | Preserve arrays with highest nesting level \(if they are not associative\) as element values instead of unpacking them |
+| `Arr::UNPACK_PRESERVE_ASSOC_ARRAY` | Preserve arrays with highest nesting level \(if they are associative\) as element values instead of unpacking them |
+| `Arr::UNPACK_PRESERVE_ARRAY` | Preserve all arrays with highest nesting level as element values instead of unpacking them |
 
 #### Examples
 
@@ -132,17 +197,53 @@ $array = [
                 'bar' => 'test2',
             ]
         ]
-        'abc' => 'test3',
+        'abc' => ['test3'],
     ],
     'xyz' => 'test4',
     'test5'
 ];
 
+// Equal to Arr::unpack($array, Arr::UNPACK_ALL)
 Arr::unpack($array) ->
 [
     'key1.key2.key3.foo' => 'test',
     'key1.key2.key3.bar' => 'test2',
-    'key1.abc' => 'test3',
+    'key1.abc.0' => 'test3',
+    'xyz' => 'test4',
+    '0' => 'test5',
+]
+
+Arr::unpack($array, Arr::UNPACK_PRESERVE_LIST_ARRAY) ->
+[
+    'key1.key2.key3.foo' => 'test',
+    'key1.key2.key3.bar' => 'test2',
+    // Preserve list array as value
+    'key1.abc' => ['test3'],
+    'xyz' => 'test4',
+    '0' => 'test5',
+]
+
+Arr::unpack($array, Arr::UNPACK_PRESERVE_ASSOC_ARRAY) ->
+[
+    // Preserve assoc array as value
+    'key1.key2.key3' => [
+        'foo' => 'test',
+        'bar' => 'test2',
+    ],
+    'key1.abc.0' => 'test3',
+    'xyz' => 'test4',
+    '0' => 'test5',
+]
+
+Arr::unpack($array, Arr::UNPACK_PRESERVE_ARRAY) ->
+[
+    // Preserve assoc array as value
+    'key1.key2.key3' => [
+        'foo' => 'test',
+        'bar' => 'test2',
+    ],
+    // Preserve list array as value
+    'key1.abc' => ['test3'],
     'xyz' => 'test4',
     '0' => 'test5',
 ]
