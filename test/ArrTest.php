@@ -151,6 +151,35 @@ class ArrTest extends TestCase
         $this->assertSame([], Arr::setNestedElement([], [], 'test'));
         $this->assertSame([], Arr::setNestedElement([], [null], 'test'));
 
+        // Test for objects
+        $obj1 = new stdClass();
+        $obj2 = new stdClass();
+        $array = [
+            [
+                $obj1,
+            ],
+            'test' => [
+                'abc' => [
+                    'foo' => $obj1,
+                ]
+            ],
+            $obj2,
+        ];
+
+        $this->assertSame($array, Arr::setNestedElement($array, '', 'whatever'));
+        $this->assertSame([
+            [
+                $obj1,
+            ],
+            'test' => [
+                'abc' => [
+                    'foo' => $obj1,
+                ]
+            ],
+            $obj2,
+            'test2' => $obj2,
+        ], Arr::setNestedElement($array, 'test2', $obj2));
+
         // Test alias
         $this->assertSame(Arr::setNestedElement([], '[].[].[]', 'test'), Arr::set([], '[].[].[]', 'test'));
         $this->assertSame(Arr::setNestedElement($array, 'test.test2.test3', 'abc'), Arr::set($array, 'test.test2.test3', 'abc'));

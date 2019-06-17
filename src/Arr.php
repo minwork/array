@@ -192,7 +192,7 @@ class Arr
      */
     public static function setNestedElement(array $array, $keys, $value): array
     {
-        $result = self::clone($array);
+        $result = $array;
         $keysArray = self::getKeysArray($keys);
 
         // If no keys specified then preserve array
@@ -229,7 +229,7 @@ class Arr
      */
     public static function remove(array $array, $keys): array
     {
-        $result = self::clone($array);
+        $result = $array;
         $keysArray = self::getKeysArray($keys);
 
         $tmp = &$result;
