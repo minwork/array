@@ -147,6 +147,9 @@ class ArrTest extends TestCase
 
         $this->assertSame([[['test']]], Arr::setNestedElement([], '[].[].[]', 'test'));
         $this->assertSame([[[[]]]], Arr::setNestedElement([], '[].[].[]', []));
+        $this->assertSame([[[[]]]], Arr::setNestedElement([], ['[]','[]','[]'], []));
+        $this->assertSame([], Arr::setNestedElement([], [], 'test'));
+        $this->assertSame([], Arr::setNestedElement([], [null], 'test'));
 
         // Test alias
         $this->assertSame(Arr::setNestedElement([], '[].[].[]', 'test'), Arr::set([], '[].[].[]', 'test'));

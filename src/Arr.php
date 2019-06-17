@@ -194,6 +194,12 @@ class Arr
     {
         $result = self::clone($array);
         $keysArray = self::getKeysArray($keys);
+
+        // If no keys specified then preserve array
+        if (empty($keysArray)) {
+            return $result;
+        }
+
         $tmp = &$result;
 
         while (count($keysArray) > 0) {
