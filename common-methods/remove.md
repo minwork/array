@@ -8,7 +8,11 @@ Arr::remove(array $array, $keys): array
 
 #### Description
 
-Remove element inside array at path specified by keys
+Remove element inside array at path specified by keys.
+
+{% hint style="info" %}
+`$keys` argument is parsed using [getKeysArray ](getkeysarray.md)method
+{% endhint %}
 
 #### Examples
 
