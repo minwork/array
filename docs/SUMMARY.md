@@ -1,7 +1,6 @@
 # Table of contents
 
 * [Minwork Array](README.md)
-* [Documentation](documentation.md)
 
 ## Common methods
 
