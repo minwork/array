@@ -41,4 +41,8 @@
 * [random](utility-methods/random.md)
 * [shuffle](utility-methods/shuffle.md)
 * [nth](utility-methods/nth.md)
+* [getFirstKey](utility-methods/getfirstkey.md)
+* [getLastKey](utility-methods/getlastkey.md)
+* [getFirstValue](utility-methods/getfirstvalue.md)
+* [getLastValue](utility-methods/getlastvalue.md)
 

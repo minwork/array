@@ -16,6 +16,15 @@ Applies a callback to the elements of given array. Arguments supplied to callbac
 For backward compatibility using `map(callable, array)` is still possible but is deprecated and will issue appropriate warning
 {% endhint %}
 
+#### Modes
+
+| Constant name | Description |
+| :--- | :--- |
+| MAP\_ARRAY\_KEY\_VALUE | Map array using callback in form of  `function($key, $value)` |
+| MAP\_ARRAY\_VALUE\_KEYS\_LIST | Map array using callback in form of  `function($value, $key1, $key2, ...)` |
+| MAP\_ARRAY\_KEYS\_ARRAY\_VALUE | Map array using callback in form of  `function(array $keys, $value)` |
+| MAP\_ARRAY\_VALUE\_KEY | Map array using callback in form of  `function($value, $key)` |
+
 #### Examples
 
 ```php
@@ -34,6 +43,10 @@ $array2 = [
 $mapKeyValue = function ($key, $value) {
     return "{$key} -> {$value}";
 };
+// Mind that $value is a first argument here
+$mapValueKey = function ($value, $key) {
+    return "{$key} -> {$value}";
+};
 $mapKeysValue = function ($keys, $value) {
     return implode('.', $keys) . " -> {$value}";
 };
@@ -43,6 +56,9 @@ $mapValueKeysList = function ($value, $key1, $key2) {
 
 // Equivalent to using MAP_ARRAY_KEY_VALUE as mode (3rd) argument
 Arr::map($array1, $mapKeyValue) -> ['0 -> a', '1 -> b', '2 -> c']
+
+// Resemble array_map function but with array supplied as first argument
+Arr::map($array1, $mapValueKey) -> ['0 -> a', '1 -> b', '2 -> c']
 
 // Map multidimensional array using keys array
 Arr::map($array2, $mapKeysValue, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE) ->
