@@ -640,11 +640,11 @@ class ArrTest extends TestCase
         /** @noinspection PhpParamsInspection */
         $this->assertSame(['0a', '1b', '2c'], Arr::map($funcKeyVal, $array));
         /** @noinspection PhpParamsInspection */
-        $this->assertSame(['0a', '1b', '2c'], Arr::map($funcValKey, $array));
+        $this->assertSame(['0a', '1b', '2c'], Arr::map($funcValKey, $array, Arr::MAP_ARRAY_VALUE_KEY));
         /** @noinspection PhpParamsInspection */
         $this->assertSame([], Arr::map($funcKeyVal, []));
         /** @noinspection PhpParamsInspection */
-        $this->assertSame([], Arr::map($funcValKey, []));
+        $this->assertSame([], Arr::map($funcValKey, [], Arr::MAP_ARRAY_VALUE_KEY));
         /** @noinspection PhpParamsInspection */
         $this->assertSame(range(0, 2), Arr::map(function ($key) {
             return $key;
