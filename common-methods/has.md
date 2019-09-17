@@ -3,12 +3,16 @@
 #### Definition
 
 ```php
-Arr::has(array $array, $keys): bool
+Arr::has(array $array, mixed $keys): bool
 ```
 
 #### Description
 
 Check if specified \(nested\) key\(s\) exists in array
+
+{% hint style="info" %}
+`$keys` argument is parsed using [getKeysArray ](getkeysarray.md)method
+{% endhint %}
 
 #### Examples
 

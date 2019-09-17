@@ -16,6 +16,10 @@ get($array, $keys, $default = null) -> getNestedElement($array, $keys, $default)
 
 Get nested array element using specified keys or return `$default` value if it does not exists.
 
+{% hint style="info" %}
+`$keys` argument is parsed using [getKeysArray ](getkeysarray.md)method
+{% endhint %}
+
 #### Examples
 
 ```php

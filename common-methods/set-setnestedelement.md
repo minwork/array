@@ -16,6 +16,10 @@ set(array $array, $keys, $value) -> setNestedElement(array $array, $keys, $value
 
 Set array element specified by keys to the desired value \(create missing keys if necessary\).
 
+{% hint style="info" %}
+`$keys` argument is parsed using [getKeysArray ](getkeysarray.md)method
+{% endhint %}
+
 #### Examples
 
 ```php

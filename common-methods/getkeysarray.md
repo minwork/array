@@ -10,6 +10,8 @@ Arr::getKeysArray(mixed $keys): array
 
 Transform variable into standardised array of keys.
 
+This method filters out any values that cannot be used as array key leaving only not empty strings and integers as seen in the example below.
+
 {% hint style="info" %}
 All `$keys` arguments in other methods are normalized using this method
 {% endhint %}

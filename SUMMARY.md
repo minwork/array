@@ -25,7 +25,7 @@
 
 ## Manipulating array
 
-* [Mapping](manipulating-array/untitled.md)
+* [Mapping](manipulating-array/mapping.md)
 * [Filtering](manipulating-array/filtering.md)
 * [Grouping](manipulating-array/grouping.md)
 * [Sorting](manipulating-array/sorting.md)
