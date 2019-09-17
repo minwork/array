@@ -28,9 +28,22 @@ class Arr
     const FORCE_ARRAY_PRESERVE_OBJECTS = 4;
     const FORCE_ARRAY_PRESERVE_ARRAY_OBJECTS = 8;
 
+    /**
+     * Map array using callback in form of function($key, $value)
+     */
     const MAP_ARRAY_KEY_VALUE = 1;
+    /**
+     * Map array using callback in form of function($value, $key1, $key2, ...)
+     */
     const MAP_ARRAY_VALUE_KEYS_LIST = 2;
+    /**
+     * Map array using callback in form of function(array $keys, $value)
+     */
     const MAP_ARRAY_KEYS_ARRAY_VALUE = 4;
+    /**
+     * Map array using callback in form of function($value, $key)
+     */
+    const MAP_ARRAY_VALUE_KEY = 8;
 
     const UNPACK_ALL = 1;
     /**
@@ -488,6 +501,7 @@ class Arr
      *   MAP_ARRAY_KEY_VALUE -> callback($key, $value)<br>
      *   MAP_ARRAY_VALUE_KEYS_LIST -> callback($value, $key1, $key2, ...)<br>
      *   MAP_ARRAY_KEYS_ARRAY_VALUE -> callback(array $keys, $value)
+     *   MAP_ARRAY_VALUE_KEY -> callback($value, $key)
      * @return array
      */
     public static function map($array, $callback, int $mode = self::MAP_ARRAY_KEY_VALUE): array
@@ -505,6 +519,11 @@ class Arr
             case self::MAP_ARRAY_KEY_VALUE:
                 foreach ($array as $key => $value) {
                     $result[$key] = $callback($key, $value);
+                }
+                break;
+            case self::MAP_ARRAY_VALUE_KEY:
+                foreach ($array as $key => $value) {
+                    $result[$key] = $callback($value, $key);
                 }
                 break;
             case self::MAP_ARRAY_VALUE_KEYS_LIST:
@@ -1064,5 +1083,62 @@ class Arr
         return self::nth($array, 2, 1);
     }
 
+    /**
+     * Get the first key of the given array without affecting the internal array pointer.
+     *
+     * @param array $array
+     * @return string|int|null Null if array is empty
+     */
+    public static function getFirstKey(array $array)
+    {
+        return empty($array) ? null : array_keys($array)[0];
+    }
 
+    /**
+     * Get the last key of the given array without affecting the internal array pointer.
+     *
+     * @param array $array
+     * @return string|int|null Null if array is empty
+     */
+    public static function getLastKey(array $array)
+    {
+        if (empty($array)) {
+            return null;
+        } else {
+            $keys = array_keys($array);
+            return $keys[count($keys) - 1];
+        }
+    }
+
+    /**
+     * Get the first value of the given array without affecting the internal array pointer.
+     *
+     * @param array $array
+     * @return mixed|null Null if array is empty
+     */
+    public static function getFirstValue(array $array)
+    {
+        if (empty($array)) {
+            return null;
+        }
+
+        return array_values($array)[0];
+    }
+
+    /**
+     * Get the last value of the given array without affecting the internal array pointer.
+     *
+     * @param array $array
+     * @return mixed|null Null if array is empty
+     */
+    public static function getLastValue(array $array)
+    {
+        if (empty($array)) {
+            return null;
+        }
+
+        $values = array_values($array);
+
+        return $values[count($values) - 1];
+    }
 }

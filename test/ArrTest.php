@@ -24,6 +24,68 @@ class ArrTest extends TestCase
         };
     }
 
+    public function arrayProvider(): array
+    {
+        return [
+            [[3]],
+            [['key']],
+            [[1, 'test']],
+            [['key1' => 1, 'key2' => 2, 'key3' => 3]],
+            [[[[]]]],
+            [[0, '', null, false]],
+            [[1, true, 'true', 'false', '0', ' 1', PHP_INT_MIN, PHP_INT_MAX]],
+            [[
+                'test' => [
+                    'test1',
+                    'test2' => [
+                        'test3' => 'abc',
+                        'test4'
+                    ],
+                    [
+                        'test6' => 'def'
+                    ],
+                ],
+            ]],
+            ['a' => [
+                'b' => [
+                    1 => [
+                        PHP_INT_MIN,
+                        2 => 3
+                    ],
+                    'c' => [
+                        4,
+                        true,
+                    ],
+                    5
+                ],
+                'd' => [
+                    'e',
+                    [
+                        'f' => 6
+                    ]
+                ],
+            ],
+            'g' => [
+                'h',
+                'i',
+                PHP_INT_MAX,
+                'j' => [
+                    7,
+                    2 => 8,
+                    null,
+                ]
+            ],
+            [
+                'k',
+                'l' => [
+                    9,
+                    10,
+                    false,
+                ],
+            ]]
+        ];
+    }
+
     /********************************* Common *********************************/
     public function testGetKeysArray()
     {
@@ -515,6 +577,9 @@ class ArrTest extends TestCase
         $funcKeyVal = function ($key, $value) {
             return "{$key}{$value}";
         };
+        $funcValKey = function ($value, $key) {
+            return "{$key}{$value}";
+        };
         $funcKeysVal = function ($keys, $value) {
             return implode($keys, '-') . ':' . $value;
         };
@@ -575,7 +640,11 @@ class ArrTest extends TestCase
         /** @noinspection PhpParamsInspection */
         $this->assertSame(['0a', '1b', '2c'], Arr::map($funcKeyVal, $array));
         /** @noinspection PhpParamsInspection */
+        $this->assertSame(['0a', '1b', '2c'], Arr::map($funcValKey, $array));
+        /** @noinspection PhpParamsInspection */
         $this->assertSame([], Arr::map($funcKeyVal, []));
+        /** @noinspection PhpParamsInspection */
+        $this->assertSame([], Arr::map($funcValKey, []));
         /** @noinspection PhpParamsInspection */
         $this->assertSame(range(0, 2), Arr::map(function ($key) {
             return $key;
@@ -1303,6 +1372,52 @@ class ArrTest extends TestCase
         $array = ['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4];
         $this->assertTrue(Arr::hasKeys(Arr::shuffle($array), array_keys($array), true));
         $this->assertSame([], array_diff(Arr::shuffle($array), $array));
+    }
+
+    /**
+     * @param array $array
+     *
+     * @dataProvider arrayProvider
+     */
+    public function testGetFirstKey(array $array)
+    {
+        $this->assertSame(null, Arr::getFirstKey([]));
+        reset($array);
+        $this->assertSame(key($array), Arr::getFirstKey($array));
+    }
+
+    /**
+     * @param array $array
+     *
+     * @dataProvider arrayProvider
+     */
+    public function testGetLastKey(array $array)
+    {
+        $this->assertSame(null, Arr::getLastKey([]));
+        end($array);
+        $this->assertSame(key($array), Arr::getLastKey($array));
+    }
+
+    /**
+     * @param array $array
+     *
+     * @dataProvider arrayProvider
+     */
+    public function testGetFirstValue(array $array)
+    {
+        $this->assertSame(null, Arr::getFirstValue([]));
+        $this->assertSame(reset($array), Arr::getFirstValue($array));
+    }
+
+    /**
+     * @param array $array
+     *
+     * @dataProvider arrayProvider
+     */
+    public function testGetLastValue(array $array)
+    {
+        $this->assertSame(null, Arr::getLastValue([]));
+        $this->assertSame(end($array), Arr::getLastValue($array));
     }
 }
 
