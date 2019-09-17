@@ -757,12 +757,15 @@ class Arr
     /**
      * Sum associative arrays by their keys into one array
      *
-     * @param array ...$arrays Can be either list of an arrays or single array of arrays
+     * @param array $first Require first argument to ensure method is not called without arguments
+     * @param array[] ...$arrays
      * @return array
      */
-    public static function sum(array ...$arrays): array
+    public static function sum(array $first, array ...$arrays): array
     {
         $return = [];
+
+        array_unshift($arrays, $first);
 
         foreach ($arrays as $array) {
             foreach ($array as $key => $value) {
@@ -1140,5 +1143,16 @@ class Arr
         $values = array_values($array);
 
         return $values[count($values) - 1];
+    }
+
+    /**
+     * Convenience method for creating new ArrObj instance
+     *
+     * @param array|ArrayAccess $array
+     * @return ArrObj
+     */
+    public static function obj($array = []): ArrObj
+    {
+        return new ArrObj($array);
     }
 }

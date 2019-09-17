@@ -1,91 +1,12 @@
 <?php
 
 use Minwork\Helper\Arr;
+use Minwork\Helper\ArrObj;
 use PHPUnit\Framework\Error\Deprecated;
-use PHPUnit\Framework\TestCase;
+use Test\ArrTestCase;
 
-class ArrTest extends TestCase
+class ArrTest extends ArrTestCase
 {
-    private function createObjectWithMethod(callable $method)
-    {
-        return new class($method)
-        {
-            private $method;
-
-            function __construct($method)
-            {
-                $this->method = $method;
-            }
-
-            function __call($func, $params)
-            {
-                return ($this->method)(...$params);
-            }
-        };
-    }
-
-    public function arrayProvider(): array
-    {
-        return [
-            [[3]],
-            [['key']],
-            [[1, 'test']],
-            [['key1' => 1, 'key2' => 2, 'key3' => 3]],
-            [[[[]]]],
-            [[0, '', null, false]],
-            [[1, true, 'true', 'false', '0', ' 1', PHP_INT_MIN, PHP_INT_MAX]],
-            [[
-                'test' => [
-                    'test1',
-                    'test2' => [
-                        'test3' => 'abc',
-                        'test4'
-                    ],
-                    [
-                        'test6' => 'def'
-                    ],
-                ],
-            ]],
-            ['a' => [
-                'b' => [
-                    1 => [
-                        PHP_INT_MIN,
-                        2 => 3
-                    ],
-                    'c' => [
-                        4,
-                        true,
-                    ],
-                    5
-                ],
-                'd' => [
-                    'e',
-                    [
-                        'f' => 6
-                    ]
-                ],
-            ],
-            'g' => [
-                'h',
-                'i',
-                PHP_INT_MAX,
-                'j' => [
-                    7,
-                    2 => 8,
-                    null,
-                ]
-            ],
-            [
-                'k',
-                'l' => [
-                    9,
-                    10,
-                    false,
-                ],
-            ]]
-        ];
-    }
-
     /********************************* Common *********************************/
     public function testGetKeysArray()
     {
@@ -100,7 +21,12 @@ class ArrTest extends TestCase
         $this->assertSame([], Arr::getKeysArray(null));
     }
 
-    public function testHas()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testHas($class)
     {
         $array = [
             'test' => [
@@ -115,56 +41,66 @@ class ArrTest extends TestCase
             ],
         ];
 
-        $this->assertTrue(Arr::has($array, 'test'));
-        $this->assertTrue(Arr::has($array, 'test.test2'));
-        $this->assertTrue(Arr::has($array, 'test.test2.test3'));
-        $this->assertTrue(Arr::has($array, 'test.0'));
-        $this->assertTrue(Arr::has($array, 'test.1.test6'));
-        $this->assertTrue(Arr::has($array, ['test', 1, 'test6']));
+        $this->assertTrue($this->callMethod([$class, 'has'], $array, 'test'));
+        $this->assertTrue($this->callMethod([$class, 'has'], $array, 'test.test2'));
+        $this->assertTrue($this->callMethod([$class, 'has'], $array, 'test.test2.test3'));
+        $this->assertTrue($this->callMethod([$class, 'has'], $array, 'test.0'));
+        $this->assertTrue($this->callMethod([$class, 'has'], $array, 'test.1.test6'));
+        $this->assertTrue($this->callMethod([$class, 'has'], $array, ['test', 1, 'test6']));
 
-        $this->assertFalse(Arr::has($array, []));
-        $this->assertFalse(Arr::has($array, new stdClass()));
-        $this->assertFalse(Arr::has($array, 0));
-        $this->assertFalse(Arr::has($array, 'test2'));
-        $this->assertFalse(Arr::has($array, 'test.test1'));
-        $this->assertFalse(Arr::has($array, 'test.test2.test4'));
+        $this->assertFalse($this->callMethod([$class, 'has'], $array, []));
+        $this->assertFalse($this->callMethod([$class, 'has'], $array, new stdClass()));
+        $this->assertFalse($this->callMethod([$class, 'has'], $array, 0));
+        $this->assertFalse($this->callMethod([$class, 'has'], $array, 'test2'));
+        $this->assertFalse($this->callMethod([$class, 'has'], $array, 'test.test1'));
+        $this->assertFalse($this->callMethod([$class, 'has'], $array, 'test.test2.test4'));
     }
 
-    public function testHasKeys()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testHasKeys($class)
     {
         $array = ['key1' => 1, 'key2' => 2, 'key3' => 3];
 
-        $this->assertSame(true, Arr::hasKeys($array, 'key1'));
-        $this->assertSame(true, Arr::hasKeys($array, ['key2', 'key3']));
+        $this->assertSame(true, $this->callMethod([$class, 'hasKeys'], $array, 'key1'));
+        $this->assertSame(true, $this->callMethod([$class, 'hasKeys'], $array, ['key2', 'key3']));
 
-        $this->assertSame(false, Arr::hasKeys($array, 'test'));
-        $this->assertSame(false, Arr::hasKeys($array, ''));
+        $this->assertSame(false, $this->callMethod([$class, 'hasKeys'], $array, 'test'));
+        $this->assertSame(false, $this->callMethod([$class, 'hasKeys'], $array, ''));
 
-        $this->assertSame(true, Arr::hasKeys($array, 'key1.key2'));
-        $this->assertSame(true, Arr::hasKeys($array, ['test', 'key1']));
+        $this->assertSame(true, $this->callMethod([$class, 'hasKeys'], $array, 'key1.key2'));
+        $this->assertSame(true, $this->callMethod([$class, 'hasKeys'], $array, ['test', 'key1']));
 
-        $this->assertSame(false, Arr::hasKeys($array, ['test', 'key1'], true));
-        $this->assertSame(true, Arr::hasKeys($array, ['key2', 'key1'], true));
+        $this->assertSame(false, $this->callMethod([$class, 'hasKeys'], $array, ['test', 'key1'], true));
+        $this->assertSame(true, $this->callMethod([$class, 'hasKeys'], $array, ['key2', 'key1'], true));
     }
 
-    public function testGetNestedElement()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testGetNestedElement($class)
     {
         $array = ['key1' => ['key2' => ['key3' => ['test']]]];
 
-        $this->assertSame(['test'], Arr::getNestedElement($array, 'key1.key2.key3'));
-        $this->assertSame('test', Arr::getNestedElement($array, 'key1.key2.key3.0'));
-        $this->assertSame('default', Arr::getNestedElement($array, 'key1.key4.key2.key3', 'default'));
+        $this->assertSame(['test'], $this->callMethod([$class, 'get'], $array, 'key1.key2.key3'));
+        $this->assertSame('test', $this->callMethod([$class, 'get'], $array, 'key1.key2.key3.0'));
+        $this->assertSame('default', $this->callMethod([$class, 'get'], $array, 'key1.key4.key2.key3', 'default'));
         /** @noinspection PhpParamsInspection */
-        $this->assertSame('default', Arr::getNestedElement(new stdClass(), 'key1.key4.key2.key3', 'default'));
-        $this->assertNull(Arr::getNestedElement($array, 'key1.key4.key2.key3'));
+        $this->assertSame('default', $this->callMethod([$class, 'get'], new stdClass(), 'key1.key4.key2.key3', 'default'));
+        $this->assertNull($this->callMethod([$class, 'get'], $array, 'key1.key4.key2.key3'));
 
         $object = new ArrayObject();
         $object['key'] = 'test';
         $object['nested'] = ['key' => 'test2'];
 
-        $this->assertSame('test', Arr::getNestedElement($object, 'key'));
-        $this->assertNull(Arr::getNestedElement($object, 'key2'));
-        $this->assertSame('test2', Arr::getNestedElement($object, 'nested.key'));
+        $this->assertSame('test', $this->callMethod([$class, 'get'], $object, 'key'));
+        $this->assertNull($this->callMethod([$class, 'get'], $object, 'key2'));
+        $this->assertSame('test2', $this->callMethod([$class, 'get'], $object, 'nested.key'));
 
         // Test alias
         $this->assertSame(Arr::getNestedElement($array, 'key1.key2.key3'), Arr::get($array, 'key1.key2.key3'));
@@ -174,26 +110,31 @@ class ArrTest extends TestCase
         $this->assertSame(Arr::getNestedElement($object, 'nested.key'), Arr::get($object, 'nested.key'));
     }
 
-    public function testSetNestedElement()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testSetNestedElement($class)
     {
         $array = ['key1' => ['key2' => ['key3' => ['test']]]];
         // Array creation
-        $this->assertSame($array, Arr::setNestedElement([], 'key1.key2.key3', ['test']));
+        $this->assertSame($array, $this->callMethod([$class, 'set'], [], 'key1.key2.key3', ['test']));
 
-        $array = Arr::setNestedElement($array, 'key1.key2.key3', 'test');
+        $array = $this->callMethod([$class, 'set'], $array, 'key1.key2.key3', 'test');
         $this->assertSame('test', $array['key1']['key2']['key3']);
 
-        $array = Arr::setNestedElement($array, 'key1.key2', ['key3' => 'test']);
+        $array = $this->callMethod([$class, 'set'], $array, 'key1.key2', ['key3' => 'test']);
         $this->assertSame('test', $array['key1']['key2']['key3']);
 
-        $array = Arr::setNestedElement($array, 'key1.key2.key4', 'test2');
+        $array = $this->callMethod([$class, 'set'], $array, 'key1.key2.key4', 'test2');
         $this->assertSame('test2', $array['key1']['key2']['key4']);
 
         // Test auto index
-        $array = Arr::setNestedElement([], 'test.[]', 'test1');
-        $array = Arr::setNestedElement($array, 'test.test2.test3', 'abc');
-        $array = Arr::setNestedElement($array, 'test.test2.[]', 'test4');
-        $array = Arr::setNestedElement($array, 'test.[].test6', 'def');
+        $array = $this->callMethod([$class, 'set'], [], 'test.[]', 'test1');
+        $array = $this->callMethod([$class, 'set'], $array, 'test.test2.test3', 'abc');
+        $array = $this->callMethod([$class, 'set'], $array, 'test.test2.[]', 'test4');
+        $array = $this->callMethod([$class, 'set'], $array, 'test.[].test6', 'def');
         $this->assertSame([
             'test' => [
                 'test1',
@@ -207,11 +148,11 @@ class ArrTest extends TestCase
             ],
         ], $array);
 
-        $this->assertSame([[['test']]], Arr::setNestedElement([], '[].[].[]', 'test'));
-        $this->assertSame([[[[]]]], Arr::setNestedElement([], '[].[].[]', []));
-        $this->assertSame([[[[]]]], Arr::setNestedElement([], ['[]','[]','[]'], []));
-        $this->assertSame([], Arr::setNestedElement([], [], 'test'));
-        $this->assertSame([], Arr::setNestedElement([], [null], 'test'));
+        $this->assertSame([[['test']]], $this->callMethod([$class, 'set'], [], '[].[].[]', 'test'));
+        $this->assertSame([[[[]]]], $this->callMethod([$class, 'set'], [], '[].[].[]', []));
+        $this->assertSame([[[[]]]], $this->callMethod([$class, 'set'], [], ['[]','[]','[]'], []));
+        $this->assertSame([], $this->callMethod([$class, 'set'], [], [], 'test'));
+        $this->assertSame([], $this->callMethod([$class, 'set'], [], [null], 'test'));
 
         // Test for objects
         $obj1 = new stdClass();
@@ -228,7 +169,7 @@ class ArrTest extends TestCase
             $obj2,
         ];
 
-        $this->assertSame($array, Arr::setNestedElement($array, '', 'whatever'));
+        $this->assertSame($array, $this->callMethod([$class, 'set'], $array, '', 'whatever'));
         $this->assertSame([
             [
                 $obj1,
@@ -240,7 +181,7 @@ class ArrTest extends TestCase
             ],
             $obj2,
             'test2' => $obj2,
-        ], Arr::setNestedElement($array, 'test2', $obj2));
+        ], $this->callMethod([$class, 'set'], $array, 'test2', $obj2));
 
         // Test alias
         $this->assertSame(Arr::setNestedElement([], '[].[].[]', 'test'), Arr::set([], '[].[].[]', 'test'));
@@ -248,7 +189,12 @@ class ArrTest extends TestCase
         $this->assertSame(Arr::setNestedElement($array, 'key1.key2', ['key3' => 'test']), Arr::set($array, 'key1.key2', ['key3' => 'test']));
     }
 
-    public function testRemove()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testRemove($class)
     {
         $array = [
             'test' => [
@@ -263,7 +209,7 @@ class ArrTest extends TestCase
             ],
         ];
 
-        $this->assertSame([], Arr::remove($array, 'test'));
+        $this->assertSame([], $this->callMethod([$class, 'remove'], $array, 'test'));
         $this->assertSame([
             'test' => [
                 'test1',
@@ -271,7 +217,7 @@ class ArrTest extends TestCase
                     'test6' => 'def'
                 ],
             ],
-        ], Arr::remove($array, 'test.test2'));
+        ], $this->callMethod([$class, 'remove'], $array, 'test.test2'));
 
         $this->assertSame([
             'test' => [
@@ -283,7 +229,7 @@ class ArrTest extends TestCase
                     'test6' => 'def'
                 ],
             ]
-        ], Arr::remove($array, 'test.0'));
+        ], $this->callMethod([$class, 'remove'], $array, 'test.0'));
 
         $this->assertSame([
             'test' => [
@@ -295,7 +241,7 @@ class ArrTest extends TestCase
                     'test6' => 'def'
                 ],
             ],
-        ], Arr::remove($array, 'test.test2.test3'));
+        ], $this->callMethod([$class, 'remove'], $array, 'test.test2.test3'));
 
         $this->assertSame([
             'test' => [
@@ -306,13 +252,13 @@ class ArrTest extends TestCase
                 ],
                 [],
             ],
-        ], Arr::remove($array, 'test.1.test6'));
+        ], $this->callMethod([$class, 'remove'], $array, 'test.1.test6'));
 
-        $this->assertSame($array, Arr::remove($array, '0'));
-        $this->assertSame($array, Arr::remove($array, 'test.test1'));
-        $this->assertSame($array, Arr::remove($array, 'test.test2.test4'));
-        $this->assertSame($array, Arr::remove($array, 'test.test2.test4.test5.test6.abc'));
-        $this->assertSame($array, Arr::remove($array, 'test.2'));
+        $this->assertSame($array, $this->callMethod([$class, 'remove'], $array, '0'));
+        $this->assertSame($array, $this->callMethod([$class, 'remove'], $array, 'test.test1'));
+        $this->assertSame($array, $this->callMethod([$class, 'remove'], $array, 'test.test2.test4'));
+        $this->assertSame($array, $this->callMethod([$class, 'remove'], $array, 'test.test2.test4.test5.test6.abc'));
+        $this->assertSame($array, $this->callMethod([$class, 'remove'], $array, 'test.2'));
     }
 
     public function testPack()
@@ -422,122 +368,162 @@ class ArrTest extends TestCase
 
     /********************************* Validation *********************************/
 
-    public function testCheck()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testCheck($class)
     {
         $array1 = ['test', 'test', 'test'];
         $array2 = [1, 1, 1];
 
-        $class = new TestCheckMethod();
+        $testClass = new TestCheckMethod();
 
-        $this->assertTrue(Arr::check($array1, function ($value, $key) {
+        $this->assertTrue($this->callMethod([$class, 'check'], $array1, function ($value, $key) {
             return is_int($key) && $value == 'test';
         }));
 
-        $this->assertTrue(Arr::check($array1, function ($value) {
+        $this->assertTrue($this->callMethod([$class, 'check'], $array1, function ($value) {
             return $value;
         }, false));
-        $this->assertFalse(Arr::check($array1, function ($value) {
+        $this->assertFalse($this->callMethod([$class, 'check'], $array1, function ($value) {
             return $value;
         }, true));
 
-        $this->assertFalse(Arr::check($array1, [$class, 'testOneArg']));
-        $this->assertFalse(Arr::check($array1, [$class, 'testOneArg'], true));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array1, [$testClass, 'testOneArg']));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array1, [$testClass, 'testOneArg'], true));
 
-        $this->assertTrue(Arr::check($array2, [$class, 'testOneArg']));
-        $this->assertTrue(Arr::check($array2, [$class, 'testOneArg'], true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testOneArg']));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testOneArg'], true));
 
-        $this->assertTrue(Arr::check($array1, [$class, 'testTwoArg']));
-        $this->assertTrue(Arr::check($array1, [$class, 'testTwoArg'], true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array1, [$testClass, 'testTwoArg']));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array1, [$testClass, 'testTwoArg'], true));
 
-        $this->assertTrue(Arr::check($array2, [$class, 'testTwoArg']));
-        $this->assertTrue(Arr::check($array2, [$class, 'testTwoArg'], true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testTwoArg']));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testTwoArg'], true));
 
-        $this->assertTrue(Arr::check($array2, 'TestCheckMethod::testStaticOneArg'));
-        $this->assertTrue(Arr::check($array2, 'TestCheckMethod::testStaticTwoArg'));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'TestCheckMethod::testStaticOneArg'));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'TestCheckMethod::testStaticTwoArg'));
 
-        $this->assertTrue(Arr::check($array1, 'test', false));
-        $this->assertTrue(Arr::check($array1, 'test', true));
-        $this->assertFalse(Arr::check($array1, 'test1', false));
-        $this->assertFalse(Arr::check($array1, 'test1', true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array1, 'test', false));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array1, 'test', true));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array1, 'test1', false));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array1, 'test1', true));
 
-        $this->assertTrue(Arr::check($array2, '1', false));
-        $this->assertFalse(Arr::check($array2, '1', true));
-        $this->assertTrue(Arr::check($array2, 1, false));
-        $this->assertTrue(Arr::check($array2, 1, true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, '1', false));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array2, '1', true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 1, false));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 1, true));
 
-        $this->assertTrue(Arr::check($array2, 'is_int'));
-        $this->assertTrue(Arr::check($array2, 'is_int', true));
-        $this->assertFalse(Arr::check($array2, 'is_string'));
-        $this->assertFalse(Arr::check($array2, 'is_string', true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'is_int'));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'is_int', true));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array2, 'is_string'));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array2, 'is_string', true));
 
-        $this->assertFalse(Arr::check($array1, ['test']));
-        $this->assertFalse(Arr::check($array2, [1]));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array1, ['test']));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array2, [1]));
     }
 
-    public function testIsEmpty()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testIsEmpty($class)
     {
-        $this->assertTrue(Arr::isEmpty(null));
-        $this->assertTrue(Arr::isEmpty([]));
-        $this->assertTrue(Arr::isEmpty([0]));
-        $this->assertTrue(Arr::isEmpty([null]));
-        $this->assertTrue(Arr::isEmpty(['']));
-        $this->assertTrue(Arr::isEmpty([false]));
-        $this->assertTrue(Arr::isEmpty([1 => '']));
-        $this->assertTrue(Arr::isEmpty([2 => [null]]));
+        $this->assertTrue($this->callMethod([$class, 'isEmpty'], null));
+        $this->assertTrue($this->callMethod([$class, 'isEmpty'], []));
+        $this->assertTrue($this->callMethod([$class, 'isEmpty'], [0]));
+        $this->assertTrue($this->callMethod([$class, 'isEmpty'], [null]));
+        $this->assertTrue($this->callMethod([$class, 'isEmpty'], ['']));
+        $this->assertTrue($this->callMethod([$class, 'isEmpty'], [false]));
+        $this->assertTrue($this->callMethod([$class, 'isEmpty'], [1 => '']));
+        $this->assertTrue($this->callMethod([$class, 'isEmpty'], [2 => [null]]));
 
-        $this->assertFalse(Arr::isEmpty(['a']));
-        $this->assertTrue(Arr::isEmpty([0 => [0], [], null, [false]]));
-        $this->assertFalse(Arr::isEmpty([0 => [0 => 'a'], [], null, [false]]));
+        $this->assertFalse($this->callMethod([$class, 'isEmpty'], ['a']));
+        $this->assertTrue($this->callMethod([$class, 'isEmpty'], [0 => [0], [], null, [false]]));
+        $this->assertFalse($this->callMethod([$class, 'isEmpty'], [0 => [0 => 'a'], [], null, [false]]));
     }
 
-    public function testIsAssoc()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testIsAssoc($class)
     {
         $array = ['a' => 1, 'b' => 3, 1 => 'd', 'c'];
         $array2 = array_combine(range(1, 11), range(0, 10));
-        $this->assertFalse(Arr::isAssoc([]));
-        $this->assertTrue(Arr::isAssoc($array));
-        $this->assertTrue(Arr::isAssoc($array, true));
-        $this->assertFalse(Arr::isAssoc($array2));
-        $this->assertTrue(Arr::isAssoc($array2, true));
-        $this->assertFalse(Arr::isAssoc(range(0, 10), true));
+        $this->assertFalse($this->callMethod([$class, 'isAssoc'], []));
+        $this->assertTrue($this->callMethod([$class, 'isAssoc'], $array));
+        $this->assertTrue($this->callMethod([$class, 'isAssoc'], $array, true));
+        $this->assertFalse($this->callMethod([$class, 'isAssoc'], $array2));
+        $this->assertTrue($this->callMethod([$class, 'isAssoc'], $array2, true));
+        $this->assertFalse($this->callMethod([$class, 'isAssoc'], range(0, 10), true));
     }
 
-    public function testIsNumeric()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testIsNumeric($class)
     {
-        $this->assertTrue(Arr::isNumeric([1, '2', '3e10', 5.0002]));
-        $this->assertFalse(Arr::isNumeric([1, '2', '3e10', 5.0002, 'a']));
+        $this->assertTrue($this->callMethod([$class, 'isNumeric'], [1, '2', '3e10', 5.0002]));
+        $this->assertFalse($this->callMethod([$class, 'isNumeric'], [1, '2', '3e10', 5.0002, 'a']));
     }
 
-    public function testIsUnique()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testIsUnique($class)
     {
-        $this->assertFalse(Arr::isUnique([1, '1', true]));
-        $this->assertTrue(Arr::isUnique([1, '1', true], true));
-        $this->assertFalse(Arr::isUnique([1, '1', true, false, null, 0, 1]));
-        $this->assertFalse(Arr::isUnique([1, '1', true, false, null, 0, 1], true));
-        $this->assertFalse(Arr::isUnique([1, 1, 1]));
-        $this->assertFalse(Arr::isUnique([1, 1, 1], true));
+        $this->assertFalse($this->callMethod([$class, 'isUnique'], [1, '1', true]));
+        $this->assertTrue($this->callMethod([$class, 'isUnique'], [1, '1', true], true));
+        $this->assertFalse($this->callMethod([$class, 'isUnique'], [1, '1', true, false, null, 0, 1]));
+        $this->assertFalse($this->callMethod([$class, 'isUnique'], [1, '1', true, false, null, 0, 1], true));
+        $this->assertFalse($this->callMethod([$class, 'isUnique'], [1, 1, 1]));
+        $this->assertFalse($this->callMethod([$class, 'isUnique'], [1, 1, 1], true));
     }
 
-    public function testIsNested()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testIsNested($class)
     {
-        $this->assertFalse(Arr::isNested([]));
-        $this->assertFalse(Arr::isNested([1, 2, 3, 'a', 'b']));
-        $this->assertTrue(Arr::isNested([[], []]));
-        $this->assertTrue(Arr::isNested([[]]));
-        $this->assertTrue(Arr::isNested([1, 2 => []]));
+        $this->assertFalse($this->callMethod([$class, 'isNested'], []));
+        $this->assertFalse($this->callMethod([$class, 'isNested'], [1, 2, 3, 'a', 'b']));
+        $this->assertTrue($this->callMethod([$class, 'isNested'], [[], []]));
+        $this->assertTrue($this->callMethod([$class, 'isNested'], [[]]));
+        $this->assertTrue($this->callMethod([$class, 'isNested'], [1, 2 => []]));
     }
 
-    public function testIsArrayOfArrays()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testIsArrayOfArrays($class)
     {
-        $this->assertFalse(Arr::isArrayOfArrays([]));
-        $this->assertTrue(Arr::isArrayOfArrays([[], []]));
-        $this->assertTrue(Arr::isArrayOfArrays([[]]));
-        $this->assertFalse(Arr::isArrayOfArrays([1, 2 => []]));
+        $this->assertFalse($this->callMethod([$class, 'isArrayOfArrays'], []));
+        $this->assertTrue($this->callMethod([$class, 'isArrayOfArrays'], [[], []]));
+        $this->assertTrue($this->callMethod([$class, 'isArrayOfArrays'], [[]]));
+        $this->assertFalse($this->callMethod([$class, 'isArrayOfArrays'], [1, 2 => []]));
     }
 
     /********************************* Manipulation *********************************/
 
-    public function testMap()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testMap($class)
     {
         $array = ['a', 'b', 'c'];
         $array2 = [
@@ -588,9 +574,11 @@ class ArrTest extends TestCase
         };
 
         // Old test with new syntax
-        $this->assertSame(['0a', '1b', '2c'], Arr::map($array, $funcKeyVal));
-        $this->assertSame([], Arr::map([], $funcKeyVal));
-        $this->assertSame(range(0, 2), Arr::map($array, function ($key) {
+        $this->assertSame(['0a', '1b', '2c'], $this->callMethod([$class, 'map'], $array, $funcKeyVal));
+        $this->assertSame(['0a', '1b', '2c'], $this->callMethod([$class, 'map'], $array, $funcValKey, Arr::MAP_ARRAY_VALUE_KEY));
+        $this->assertSame([], $this->callMethod([$class, 'map'], [], $funcKeyVal));
+        $this->assertSame([], $this->callMethod([$class, 'map'], [], $funcValKey, Arr::MAP_ARRAY_VALUE_KEY));
+        $this->assertSame(range(0, 2), $this->callMethod([$class, 'map'], $array, function ($key) {
             return $key;
         }));
 
@@ -608,7 +596,7 @@ class ArrTest extends TestCase
             ],
             '0:2',
             4 => '4:56'
-        ], Arr::map($array2, $funcKeysVal, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE));
+        ], $this->callMethod([$class, 'map'], $array2, $funcKeysVal, Arr::MAP_ARRAY_KEYS_ARRAY_VALUE));
 
         // Test keys list
         $this->assertSame([
@@ -632,7 +620,7 @@ class ArrTest extends TestCase
                     ],
                 ],
             ],
-        ], Arr::map($array3, $funcValKeysList, Arr::MAP_ARRAY_VALUE_KEYS_LIST));
+        ], $this->callMethod([$class, 'map'], $array3, $funcValKeysList, Arr::MAP_ARRAY_VALUE_KEYS_LIST));
 
         $this->expectException(Deprecated::class);
         $this->expectExceptionCode(E_USER_DEPRECATED);
@@ -651,7 +639,12 @@ class ArrTest extends TestCase
         }, $array));
     }
 
-    public function testMapObjects()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testMapObjects($class)
     {
         $method1 = function ($arg1, $arg2 = 0) {
             return $arg1 + $arg2;
@@ -664,10 +657,10 @@ class ArrTest extends TestCase
         };
         $array = ['test', $this->createObjectWithMethod($method1), $this->createObjectWithMethod($method2), $this->createObjectWithMethod($method3)];
 
-        $this->assertSame(['test', 3, 4, '213'], Arr::mapObjects($array, 'test', 2, 1, 3));
-        $this->assertSame(['test', 3, 4, '21'], Arr::mapObjects($array, 'test', 2, 1));
-        $this->assertSame(['test', 2, 4, '2'], Arr::mapObjects($array, 'test', 2));
-        $this->assertSame([], Arr::mapObjects([], 'test'));
+        $this->assertSame(['test', 3, 4, '213'], $this->callMethod([$class, 'mapObjects'], $array, 'test', 2, 1, 3));
+        $this->assertSame(['test', 3, 4, '21'], $this->callMethod([$class, 'mapObjects'], $array, 'test', 2, 1));
+        $this->assertSame(['test', 2, 4, '2'], $this->callMethod([$class, 'mapObjects'], $array, 'test', 2));
+        $this->assertSame([], $this->callMethod([$class, 'mapObjects'], [], 'test'));
 
         $object = new class()
         {
@@ -678,30 +671,40 @@ class ArrTest extends TestCase
         };
         $array = [$object, $object, $object];
 
-        $this->assertSame([1, 1, 1], Arr::mapObjects($array, 'test'));
-        $this->assertSame([3, 3, 3], Arr::mapObjects($array, 'test', 2));
+        $this->assertSame([1, 1, 1], $this->callMethod([$class, 'mapObjects'], $array, 'test'));
+        $this->assertSame([3, 3, 3], $this->callMethod([$class, 'mapObjects'], $array, 'test', 2));
     }
 
-    public function testFilterByKeys()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testFilterByKeys($class)
     {
         $array = ['a' => 1, 'b' => 2, 3 => 'c', 4 => 5];
 
-        $this->assertSame($array, Arr::filterByKeys($array, null));
-        $this->assertSame($array, Arr::filterByKeys($array, null, true));
-        $this->assertSame(['a' => 1, 'b' => 2, 3 => 'c'], Arr::filterByKeys($array, 'a.b.3'));
-        $this->assertSame(['a' => 1, 'b' => 2, 3 => 'c'], Arr::filterByKeys($array, ['a', null, 'b', 3, null]));
-        $this->assertSame([3 => 'c', 4 => 5], Arr::filterByKeys($array, [0, 4, 3]));
-        $this->assertSame([], Arr::filterByKeys($array, []));
-        $this->assertSame([], Arr::filterByKeys($array, [null, 0, '']));
-        $this->assertSame($array, Arr::filterByKeys($array, [null, 0, ''], true));
-        $this->assertSame([4 => 5], Arr::filterByKeys($array, 'a.b.3', true));
-        $this->assertSame([4 => 5], Arr::filterByKeys($array, ['a', null, 'b', 3, null], true));
-        $this->assertSame(['a' => 1, 'b' => 2], Arr::filterByKeys($array, [0, 4, 3], true));
-        $this->assertSame($array, Arr::filterByKeys($array, [], true));
-        $this->assertSame($array, Arr::filterByKeys($array, [null, 0], true));
+        $this->assertSame($array, $this->callMethod([$class, 'filterByKeys'], $array, null));
+        $this->assertSame($array, $this->callMethod([$class, 'filterByKeys'], $array, null, true));
+        $this->assertSame(['a' => 1, 'b' => 2, 3 => 'c'], $this->callMethod([$class, 'filterByKeys'], $array, 'a.b.3'));
+        $this->assertSame(['a' => 1, 'b' => 2, 3 => 'c'], $this->callMethod([$class, 'filterByKeys'], $array, ['a', null, 'b', 3, null]));
+        $this->assertSame([3 => 'c', 4 => 5], $this->callMethod([$class, 'filterByKeys'], $array, [0, 4, 3]));
+        $this->assertSame([], $this->callMethod([$class, 'filterByKeys'], $array, []));
+        $this->assertSame([], $this->callMethod([$class, 'filterByKeys'], $array, [null, 0, '']));
+        $this->assertSame($array, $this->callMethod([$class, 'filterByKeys'], $array, [null, 0, ''], true));
+        $this->assertSame([4 => 5], $this->callMethod([$class, 'filterByKeys'], $array, 'a.b.3', true));
+        $this->assertSame([4 => 5], $this->callMethod([$class, 'filterByKeys'], $array, ['a', null, 'b', 3, null], true));
+        $this->assertSame(['a' => 1, 'b' => 2], $this->callMethod([$class, 'filterByKeys'], $array, [0, 4, 3], true));
+        $this->assertSame($array, $this->callMethod([$class, 'filterByKeys'], $array, [], true));
+        $this->assertSame($array, $this->callMethod([$class, 'filterByKeys'], $array, [null, 0], true));
     }
 
-    public function testFilterObjects()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testFilterObjects($class)
     {
         $object1 = $this->createObjectWithMethod(function ($arg) {
             return boolval($arg);
@@ -726,15 +729,20 @@ class ArrTest extends TestCase
             $object4,
         ];
 
-        $this->assertSame(['test1', $object1], Arr::filterObjects($array1, 'test', 1));
-        $this->assertSame(['test1', $object1], Arr::filterObjects($array1, 'test', 'abc'));
-        $this->assertSame(['test1', 2 => $object2], Arr::filterObjects($array1, 'test', false));
-        $this->assertSame([], Arr::filterObjects($array2, 'test', false, 0));
-        $this->assertSame([2 => $object4], Arr::filterObjects($array2, 'test', false, 1));
-        $this->assertSame([0 => $object3, 2 => $object4], Arr::filterObjects($array2, 'test', true, 1));
+        $this->assertSame(['test1', $object1], $this->callMethod([$class, 'filterObjects'], $array1, 'test', 1));
+        $this->assertSame(['test1', $object1], $this->callMethod([$class, 'filterObjects'], $array1, 'test', 'abc'));
+        $this->assertSame(['test1', 2 => $object2], $this->callMethod([$class, 'filterObjects'], $array1, 'test', false));
+        $this->assertSame([], $this->callMethod([$class, 'filterObjects'], $array2, 'test', false, 0));
+        $this->assertSame([2 => $object4], $this->callMethod([$class, 'filterObjects'], $array2, 'test', false, 1));
+        $this->assertSame([0 => $object3, 2 => $object4], $this->callMethod([$class, 'filterObjects'], $array2, 'test', true, 1));
     }
 
-    public function testGroup()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testGroup($class)
     {
         $array = [
             'a' => ['key1' => 'test1', 'key2' => 1, 'key3' => 'a'],
@@ -750,7 +758,7 @@ class ArrTest extends TestCase
             'test2' => [
                 2 => ['key1' => 'test2', 'key2' => 3, 'key3' => 'b']
             ],
-        ], Arr::group($array, 'key1'));
+        ], $this->callMethod([$class, 'group'], $array, 'key1'));
         $this->assertSame([
             1 => [
                 'a' => ['key1' => 'test1', 'key2' => 1, 'key3' => 'a'],
@@ -761,7 +769,7 @@ class ArrTest extends TestCase
             3 => [
                 2 => ['key1' => 'test2', 'key2' => 3, 'key3' => 'b']
             ],
-        ], Arr::group($array, 'key2'));
+        ], $this->callMethod([$class, 'group'], $array, 'key2'));
         $this->assertSame([
             'a' => [
                 'a' => ['key1' => 'test1', 'key2' => 1, 'key3' => 'a']
@@ -769,13 +777,18 @@ class ArrTest extends TestCase
             'b' => [
                 2 => ['key1' => 'test2', 'key2' => 3, 'key3' => 'b']
             ],
-        ], Arr::group($array, 'key3'));
-        $this->assertSame([], Arr::group([], 'key'));
-        $this->assertSame([], Arr::group($array, 'key4'));
+        ], $this->callMethod([$class, 'group'], $array, 'key3'));
+        $this->assertSame([], $this->callMethod([$class, 'group'], [], 'key'));
+        $this->assertSame([], $this->callMethod([$class, 'group'], $array, 'key4'));
 
     }
 
-    public function testGroupObjects()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testGroupObjects($class)
     {
         $object1 = $this->createObjectWithMethod(function () {
             return 'test';
@@ -795,22 +808,27 @@ class ArrTest extends TestCase
             'test1' => [
                 'd' => $object2,
             ],
-        ], Arr::groupObjects([
+        ], $this->callMethod([$class, 'groupObjects'], [
             'abc',
             $object1,
             'def',
             'd' => $object2,
             3 => $object3
         ], 'test'));
-        $this->assertSame([], Arr::groupObjects(['a', 'b', 'c'], 'test'));
+        $this->assertSame([], $this->callMethod([$class, 'groupObjects'], ['a', 'b', 'c'], 'test'));
         $this->assertSame([
             'test' => [
                 3 => $object3
             ]
-        ], Arr::groupObjects(['a', 'b', 'c', $object3], 'test'));
+        ], $this->callMethod([$class, 'groupObjects'], ['a', 'b', 'c', $object3], 'test'));
     }
 
-    public function testOrderByKeys()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testOrderByKeys($class)
     {
         $array = [
             'abc',
@@ -827,16 +845,21 @@ class ArrTest extends TestCase
             1 => 'test2',
         ];
 
-        $this->assertSame($ordered, Arr::orderByKeys($array, 'd.0.x.e.1'));
-        $this->assertSame($ordered, Arr::orderByKeys($array, ['d', 0, 'x', 'e', 1]));
-        $this->assertSame($ordered, Arr::orderByKeys($array, 'd.0.x'));
-        $this->assertSame(array_slice($ordered, 0, 3, true), Arr::orderByKeys($array, 'd.0.x', false));
-        $this->assertSame($array, Arr::orderByKeys($array, null));
-        $this->assertSame($array, Arr::orderByKeys($array, []));
-        $this->assertSame($array, Arr::orderByKeys($array, [null, '']));
+        $this->assertSame($ordered, $this->callMethod([$class, 'orderByKeys'], $array, 'd.0.x.e.1'));
+        $this->assertSame($ordered, $this->callMethod([$class, 'orderByKeys'], $array, ['d', 0, 'x', 'e', 1]));
+        $this->assertSame($ordered, $this->callMethod([$class, 'orderByKeys'], $array, 'd.0.x'));
+        $this->assertSame(array_slice($ordered, 0, 3, true), $this->callMethod([$class, 'orderByKeys'], $array, 'd.0.x', false));
+        $this->assertSame($array, $this->callMethod([$class, 'orderByKeys'], $array, null));
+        $this->assertSame($array, $this->callMethod([$class, 'orderByKeys'], $array, []));
+        $this->assertSame($array, $this->callMethod([$class, 'orderByKeys'], $array, [null, '']));
     }
 
-    public function testSortByKeys()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testSortByKeys($class)
     {
         $array1 = [
             'a' => 3,
@@ -866,71 +889,82 @@ class ArrTest extends TestCase
             'f' => 1,
             'a' => 3,
             'c' => 6,
-        ], Arr::sortByKeys($array1));
+        ], $this->callMethod([$class, 'sortByKeys'], $array1));
 
-        $this->assertSame([-3, 0, 1, 1, 3, 6], Arr::sortByKeys($array1, null, false));
-        $this->assertSame([-3, 0, 1, 1, 3, 6], Arr::sortByKeys($array1, [null, ''], false));
-        $this->assertSame([], Arr::sortByKeys([]));
+        $this->assertSame([-3, 0, 1, 1, 3, 6], $this->callMethod([$class, 'sortByKeys'], $array1, null, false));
+        $this->assertSame([-3, 0, 1, 1, 3, 6], $this->callMethod([$class, 'sortByKeys'], $array1, [null, ''], false));
+        $this->assertSame([], $this->callMethod([$class, 'sortByKeys'], []));
 
         $this->assertSame([
             'c' => ['b' => -1],
             'd' => ['b' => 0],
             'a' => ['b' => 3],
-        ], Arr::sortByKeys($array2, 'b'));
+        ], $this->callMethod([$class, 'sortByKeys'], $array2, 'b'));
         $this->assertSame([
             ['b' => -1],
             ['b' => 0],
             ['b' => 3],
-        ], Arr::sortByKeys($array2, 'b', false));
+        ], $this->callMethod([$class, 'sortByKeys'], $array2, 'b', false));
 
         $this->assertSame([
             'c' => ['b' => ['c' => -1]],
             'd' => ['b' => ['c' => 0]],
             'a' => ['b' => ['c' => 3]],
-        ], Arr::sortByKeys($array3, 'b.c'));
+        ], $this->callMethod([$class, 'sortByKeys'], $array3, 'b.c'));
         $this->assertSame([
             ['b' => ['c' => -1]],
             ['b' => ['c' => 0]],
             ['b' => ['c' => 3]],
-        ], Arr::sortByKeys($array3, 'b.c', false));
+        ], $this->callMethod([$class, 'sortByKeys'], $array3, 'b.c', false));
     }
 
-    public function testSortObjects()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testSortObjects($class)
     {
         $object1 = new class() {
-            public static $counter = 1;
             public $i = 1;
-
-            public function __clone()
-            {
-                $this->i = ++self::$counter;
-            }
 
             public function getValue(bool $reverse = false) {
                 return $reverse ? 1 / $this->i : $this->i;
             }
         };
         $object2 = clone $object1;
+        $object2->i = 2;
+
         $object3 = clone $object1;
+        $object3->i = 3;
+
         $object4 = clone $object1;
+        $object4->i = 4;
+
         $object5 = clone $object1;
+        $object5->i = 5;
 
         $proto = [$object1, $object2, $object3, $object4, $object5];
         $array = $proto;
 
-        $this->assertSame(Arr::mapObjects($array, 'getValue'), [1, 2, 3, 4, 5]);
-        $this->assertSame(Arr::mapObjects($array, 'getValue', true), [1, 1/2, 1/3, 1/4, 1/5]);
+        $this->assertSame([1, 2, 3, 4, 5], $this->callMethod([$class, 'mapObjects'], $array, 'getValue'));
+        $this->assertSame([1, 1/2, 1/3, 1/4, 1/5], $this->callMethod([$class, 'mapObjects'], $array, 'getValue', true));
 
         // Ensure order is not the same
         do {
-            $array = Arr::shuffle($array);
+            $array = $this->callMethod([$class, 'shuffle'], $array);
         } while ($array === $proto);
 
-        $this->assertSame($proto, Arr::sortObjects($array, 'getValue'));
-        $this->assertSame(array_reverse($proto, true), Arr::sortObjects($array, 'getValue', true));
+        $this->assertSame($proto, $this->callMethod([$class, 'sortObjects'], $array, 'getValue'));
+        $this->assertSame(array_reverse($proto, true), $this->callMethod([$class, 'sortObjects'], $array, 'getValue', true));
     }
 
-    public function testSum()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testSum($class)
     {
         $arrays = [
             [
@@ -965,34 +999,49 @@ class ArrTest extends TestCase
             'b' => 0,
             'c' => 0,
             'd' => 0,
-        ], Arr::sum(...$arrays));
-        $this->assertSame([], Arr::sum([]));
-        $this->assertEquals([1, 1, 0], Arr::sum([null, '', false], ['1', true, 'test']));
+        ], $this->callMethod([$class, 'sum'], ...$arrays));
+        $this->assertSame([], $this->callMethod([$class, 'sum'], []));
+        $this->assertEquals([1, 1, 0], $this->callMethod([$class, 'sum'], [null, '', false], ['1', true, 'test']));
     }
 
-    public function testDiffObjects()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testDiffObjects($class)
     {
         $object1 = new stdClass();
         $object2 = new stdClass();
         $object3 = new stdClass();
 
-        $this->assertSame([1 => $object1], Arr::diffObjects([$object3, $object1, $object2], [$object3], [$object2]));
-        $this->assertSame([], Arr::diffObjects([$object3, $object1, $object2], [$object3], [$object1, $object2]));
-        $this->assertSame([$object1], Arr::diffObjects([$object1], [$object3], [$object2], []));
+        $this->assertSame([1 => $object1], $this->callMethod([$class, 'diffObjects'], [$object3, $object1, $object2], [$object3], [$object2]));
+        $this->assertSame([], $this->callMethod([$class, 'diffObjects'], [$object3, $object1, $object2], [$object3], [$object1, $object2]));
+        $this->assertSame([$object1], $this->callMethod([$class, 'diffObjects'], [$object1], [$object3], [$object2], []));
     }
 
-    public function testIntersectObjects()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testIntersectObjects($class)
     {
         $object1 = new stdClass();
         $object2 = new stdClass();
         $object3 = new stdClass();
 
-        $this->assertSame([2 => $object2], Arr::intersectObjects([$object3, $object1, $object2], [$object3, $object2], [$object2]));
-        $this->assertSame([], Arr::intersectObjects([$object3, $object1, $object2], [$object3], [$object1, $object2]));
-        $this->assertSame([$object1, $object2, 3 => $object1], Arr::intersectObjects([$object1, $object2, $object3, $object1], [$object1, $object2]));
+        $this->assertSame([2 => $object2], $this->callMethod([$class, 'intersectObjects'], [$object3, $object1, $object2], [$object3, $object2], [$object2]));
+        $this->assertSame([], $this->callMethod([$class, 'intersectObjects'], [$object3, $object1, $object2], [$object3], [$object1, $object2]));
+        $this->assertSame([$object1, $object2, 3 => $object1], $this->callMethod([$class, 'intersectObjects'], [$object1, $object2, $object3, $object1], [$object1, $object2]));
     }
 
-    public function testFlatten()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testFlatten($class)
     {
         $array = [
             'a' => [
@@ -1042,23 +1091,23 @@ class ArrTest extends TestCase
         ];
 
 
-        $this->assertSame([], Arr::flatten([[[[]]]]));
-        $this->assertSame([], Arr::flatten([]));
+        $this->assertSame([], $this->callMethod([$class, 'flatten'], [[[[]]]]));
+        $this->assertSame([], $this->callMethod([$class, 'flatten'], []));
 
-        $this->assertSame(['test', 1, 2], Arr::flatten($array2));
-        $this->assertSame([3, 4, 5, 'e', 6, 'h', 'i', 7, 8, 'k', 9, 10], Arr::flatten($array));
+        $this->assertSame(['test', 1, 2], $this->callMethod([$class, 'flatten'], $array2));
+        $this->assertSame([3, 4, 5, 'e', 6, 'h', 'i', 7, 8, 'k', 9, 10], $this->callMethod([$class, 'flatten'], $array));
 
         // Test depth
-        $this->assertSame(['a'], Arr::flatten([[[['a']]]]));
-        $this->assertSame(array_values($array), Arr::flatten($array, 0));
-        $this->assertSame($array, Arr::flatten($array, 0, true));
-        $this->assertSame([['c' => 'test'], 1, 2], Arr::flatten($array2, 1));
+        $this->assertSame(['a'], $this->callMethod([$class, 'flatten'], [[[['a']]]]));
+        $this->assertSame(array_values($array), $this->callMethod([$class, 'flatten'], $array, 0));
+        $this->assertSame($array, $this->callMethod([$class, 'flatten'], $array, 0, true));
+        $this->assertSame([['c' => 'test'], 1, 2], $this->callMethod([$class, 'flatten'], $array2, 1));
 
         $this->assertSame([
             'c' => 'test',
             'd' => 1,
             'e' => 2
-        ], Arr::flatten($array2, null, true));
+        ], $this->callMethod([$class, 'flatten'], $array2, null, true));
 
 
         $this->assertSame([
@@ -1088,7 +1137,7 @@ class ArrTest extends TestCase
                 9,
                 10,
             ],
-        ], Arr::flatten($array, 1));
+        ], $this->callMethod([$class, 'flatten'], $array, 1));
 
         $this->assertSame([
             'b' => [
@@ -1117,7 +1166,7 @@ class ArrTest extends TestCase
                 9,
                 10,
             ],
-        ], Arr::flatten($array, 1, true));
+        ], $this->callMethod([$class, 'flatten'], $array, 1, true));
 
         $this->assertSame([
             3,
@@ -1132,7 +1181,7 @@ class ArrTest extends TestCase
             'k',
             9,
             10,
-        ], Arr::flatten($array, 3));
+        ], $this->callMethod([$class, 'flatten'], $array, 3));
 
         $this->assertSame([
             'a' => 1,
@@ -1141,7 +1190,7 @@ class ArrTest extends TestCase
             4,
             'd' => 5,
             6,
-        ], Arr::flatten([
+        ], $this->callMethod([$class, 'flatten'], [
             'a' => [
                 'a' => [
                     'a' => 1,
@@ -1170,7 +1219,7 @@ class ArrTest extends TestCase
         $this->assertSame([
             'c' => 1,
             2,
-        ], Arr::flatten([
+        ], $this->callMethod([$class, 'flatten'], [
             'a' => [
                 'b' => [
                     'c' => 1,
@@ -1182,17 +1231,22 @@ class ArrTest extends TestCase
         ], null, true));
     }
 
-    public function testFlattenSingle()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testFlattenSingle($class)
     {
-        $this->assertSame([], Arr::flattenSingle([]));
-        $this->assertSame(['a'], Arr::flattenSingle([['a']]));
+        $this->assertSame([], $this->callMethod([$class, 'flattenSingle'], []));
+        $this->assertSame(['a'], $this->callMethod([$class, 'flattenSingle'], [['a']]));
         $this->assertSame([
             'a' => 'test',
             'b' => [
                 'test2',
                 'c' => 'test3'
             ],
-        ], Arr::flattenSingle([
+        ], $this->callMethod([$class, 'flattenSingle'], [
             'a' => ['test'],
             'b' => [
                 'test2',
@@ -1202,7 +1256,7 @@ class ArrTest extends TestCase
         $this->assertSame([
             'a' => 1,
             'b' => 2,
-        ], Arr::flattenSingle([
+        ], $this->callMethod([$class, 'flattenSingle'], [
             'a' => [
                 'b' => 1
             ],
@@ -1279,12 +1333,17 @@ class ArrTest extends TestCase
         $this->assertSame([$function], Arr::forceArray($function));
     }
 
-    public function testGetDepth()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testGetDepth($class)
     {
-        $this->assertSame(1, Arr::getDepth([]));
-        $this->assertSame(1, Arr::getDepth([1, 2, 3, 4, 'a', 'b', 'c']));
-        $this->assertSame(2, Arr::getDepth([[]]));
-        $this->assertSame(5, Arr::getDepth([
+        $this->assertSame(1, $this->callMethod([$class, 'getDepth'], []));
+        $this->assertSame(1, $this->callMethod([$class, 'getDepth'], [1, 2, 3, 4, 'a', 'b', 'c']));
+        $this->assertSame(2, $this->callMethod([$class, 'getDepth'], [[]]));
+        $this->assertSame(5, $this->callMethod([$class, 'getDepth'], [
             [],
             'a' => [
                 'b' => [
@@ -1306,7 +1365,12 @@ class ArrTest extends TestCase
         ]));
     }
 
-    public function testClone()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testClone($class)
     {
         $object = new stdClass();
         $object2 = new ArrayObject();
@@ -1320,70 +1384,90 @@ class ArrTest extends TestCase
             }
         };
 
-        $this->assertSame([1, 2, 'a'], Arr::clone([1, 2, 'a']));
-        $this->assertSame([], Arr::clone([]));
-        $this->assertEquals([$object], Arr::clone([$object]));
-        $this->assertEquals([$object2], Arr::clone([$object2]));
-        $this->assertEquals(['a' => $object2, [[$object]]], Arr::clone(['a' => $object2, [[$object]]]));
-        $this->assertNotEquals([$object], Arr::clone([$object2]));
+        $this->assertSame([1, 2, 'a'], $this->callMethod([$class, 'clone'], [1, 2, 'a']));
+        $this->assertSame([], $this->callMethod([$class, 'clone'], []));
+        $this->assertEquals([$object], $this->callMethod([$class, 'clone'], [$object]));
+        $this->assertEquals([$object2], $this->callMethod([$class, 'clone'], [$object2]));
+        $this->assertEquals(['a' => $object2, [[$object]]], $this->callMethod([$class, 'clone'], ['a' => $object2, [[$object]]]));
+        $this->assertNotEquals([$object], $this->callMethod([$class, 'clone'], [$object2]));
 
         $array = ['test' => $object3];
-        $newArray = Arr::clone($array);
+        $newArray = $this->callMethod([$class, 'clone'], $array);
         $this->assertSame(1, $array['test']->counter);
         $this->assertSame(2, $newArray['test']->counter);
     }
 
-    public function testRandom()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testRandom($class)
     {
         $array = [1, 2, 3];
         $array2 = ['test', 'abc'];
 
-        $this->assertContains(Arr::random($array), $array);
-        $this->assertIsInt(Arr::random($array));
-        $this->assertContains(Arr::random($array2), $array2);
-        $this->assertIsString(Arr::random($array2));
-        $this->assertIsNotArray(Arr::random($array));
-        $this->assertIsNotArray(Arr::random($array2));
+        $this->assertContains($this->callMethod([$class, 'random'], $array), $array);
+        $this->assertIsInt($this->callMethod([$class, 'random'], $array));
+        $this->assertContains($this->callMethod([$class, 'random'], $array2), $array2);
+        $this->assertIsString($this->callMethod([$class, 'random'], $array2));
+        $this->assertIsNotArray($this->callMethod([$class, 'random'], $array));
+        $this->assertIsNotArray($this->callMethod([$class, 'random'], $array2));
 
-        $random = Arr::random($array, 2);
+        $random = $this->callMethod([$class, 'random'], $array, 2);
         $this->assertIsArray($random);
         $this->assertCount(2, $random);
         $this->assertSame($random, array_intersect($array, $random));
-        $this->assertSame(null, Arr::random([]));
+        $this->assertSame(null, $this->callMethod([$class, 'random'], []));
 
         $this->expectException(InvalidArgumentException::class);
-        Arr::random($array2, 4);
+        $this->callMethod([$class, 'random'], $array2, 4);
     }
 
-    public function testNth()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testNth($class)
     {
         $array = range(0, 10);
 
-        $this->assertEqualsCanonicalizing([0, 2, 4, 6, 8, 10], Arr::even($array));
-        $this->assertEqualsCanonicalizing([1, 3, 5, 7, 9], Arr::odd($array));
-        $this->assertEqualsCanonicalizing([2, 6, 10], Arr::nth($array, 4, 2));
-        $this->assertSame($array, Arr::nth($array));
-        $this->assertSame(['b' => 2, 'd' => 4], Arr::nth(['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4], 2, 1));
-        $this->assertSame([], Arr::nth([], 100, 100));
+        $this->assertEqualsCanonicalizing([0, 2, 4, 6, 8, 10], $this->callMethod([$class, 'even'], $array));
+        $this->assertEqualsCanonicalizing([1, 3, 5, 7, 9], $this->callMethod([$class, 'odd'], $array));
+        $this->assertEqualsCanonicalizing([2, 6, 10], $this->callMethod([$class, 'nth'], $array, 4, 2));
+        $this->assertSame($array, $this->callMethod([$class, 'nth'], $array));
+        $this->assertSame(['b' => 2, 'd' => 4], $this->callMethod([$class, 'nth'], ['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4], 2, 1));
+        $this->assertSame([], $this->callMethod([$class, 'nth'], [], 100, 100));
     }
 
-    public function testShuffle()
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testShuffle($class)
     {
         $array = ['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4];
-        $this->assertTrue(Arr::hasKeys(Arr::shuffle($array), array_keys($array), true));
-        $this->assertSame([], array_diff(Arr::shuffle($array), $array));
+        $this->assertTrue($this->callMethod([$class, 'hasKeys'], $this->callMethod([$class, 'shuffle'], $array), array_keys($array), true));
+        $this->assertSame([], array_diff($this->callMethod([$class, 'shuffle'], $array), $array));
     }
 
     /**
      * @param array $array
+     * @return array
      *
      * @dataProvider arrayProvider
      */
     public function testGetFirstKey(array $array)
     {
         $this->assertSame(null, Arr::getFirstKey([]));
+        $this->assertSame(null, Arr::obj([])->getFirstKey());
         reset($array);
         $this->assertSame(key($array), Arr::getFirstKey($array));
+        $this->assertSame(key($array), Arr::obj($array)->getFirstKey());
+
+        return $array;
     }
 
     /**
@@ -1394,8 +1478,10 @@ class ArrTest extends TestCase
     public function testGetLastKey(array $array)
     {
         $this->assertSame(null, Arr::getLastKey([]));
+        $this->assertSame(null, Arr::obj([])->getLastKey());
         end($array);
         $this->assertSame(key($array), Arr::getLastKey($array));
+        $this->assertSame(key($array), Arr::obj($array)->getLastKey());
     }
 
     /**
@@ -1406,7 +1492,9 @@ class ArrTest extends TestCase
     public function testGetFirstValue(array $array)
     {
         $this->assertSame(null, Arr::getFirstValue([]));
+        $this->assertSame(null, Arr::obj([])->getFirstValue());
         $this->assertSame(reset($array), Arr::getFirstValue($array));
+        $this->assertSame(reset($array), Arr::obj($array)->getFirstValue());
     }
 
     /**
@@ -1417,7 +1505,16 @@ class ArrTest extends TestCase
     public function testGetLastValue(array $array)
     {
         $this->assertSame(null, Arr::getLastValue([]));
+        $this->assertSame(null, Arr::obj([])->getLastValue());
         $this->assertSame(end($array), Arr::getLastValue($array));
+        $this->assertSame(end($array), Arr::obj($array)->getLastValue());
+    }
+
+    public function testReturnArrObj()
+    {
+        $this->assertIsObject(Arr::obj());
+        $this->assertInstanceOf(ArrObj::class, Arr::obj());
+        $this->assertSame(ArrObj::class, get_class(Arr::obj()));
     }
 }
 
