@@ -86,4 +86,59 @@ class ArrObjTest extends ArrTestCase
         /** @noinspection PhpUndefinedMethodInspection */
         (new ArrObj())->invalidMethodTest();
     }
+
+    /**
+     * @param array $array
+     *
+     * @dataProvider arrayProvider
+     */
+    public function testArrayAccess($array)
+    {
+        $obj = new ArrObj($array);
+        $key = Arr::getFirstKey($array);
+
+        $this->assertSame($array[$key], $obj[$key]);
+        $this->assertSame(isset($array[$key]), isset($obj[$key]));
+        $this->assertSame(isset($array['non_existent_key_643543543']), isset($obj['non_existent_key_643543543']));
+
+        $newKey = 'very_long_unique_key';
+        $newValue = 'dump_value_123';
+        $this->assertSame($array[$newKey] = $newValue, $obj[$newKey] = $newValue);
+        $this->assertSame($array[$newKey], $obj[$newKey]);
+        $this->assertSame(isset($array[$newKey]), isset($obj[$newKey]));
+
+        unset($array[$newKey], $obj[$newKey]);
+        $this->assertSame(isset($array[$newKey]), isset($obj[$newKey]));
+    }
+
+    /**
+     * @param array $array
+     *
+     * @dataProvider arrayProvider
+     */
+    public function testArrayCount($array)
+    {
+        $obj = new ArrObj($array);
+
+        $this->assertSame(count($array), count($obj));
+        $firstKey = Arr::getFirstKey($array);
+        $lastKey = Arr::getLastKey($array);
+
+        unset($array[$firstKey], $obj[$firstKey], $array[$lastKey], $obj[$lastKey]);
+        $this->assertSame(count($array), count($obj));
+    }
+
+    /**
+     * @param array $array
+     *
+     * @dataProvider arrayProvider
+     */
+    public function testArrayIterator($array)
+    {
+        $obj = new ArrObj($array);
+
+        foreach ($obj as $key => $value) {
+            $this->assertSame($array[$key], $value);
+        }
+    }
 }
