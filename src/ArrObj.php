@@ -11,52 +11,139 @@ use IteratorAggregate;
 /**
  * Class ArrObj
  * @package Minwork\Helper
+ *
+ * --------------------------------------------------------------------------------
+ *
  * @method bool has(mixed $keys)
+ * @see Arr::has()
+ *
  * @method bool hasKeys(mixed $keys, bool $strict = false)
+ * @see Arr::hasKeys()
+ *
  * @method mixed get(mixed $keys, $default = null)
+ * @see Arr::get()
+ *
  * @method ArrObj set(mixed $keys, mixed $value)
+ * @see Arr::set()
+ *
  * @method ArrObj remove(mixed $keys)
+ * @see Arr::remove()
+ *
+ * ---------------------------------------------------------------------------------
  *
  * @method bool check(mixed|callable $condition, bool $strict = false)
+ * @see Arr::check()
+ *
  * @method bool isEmpty()
+ * @see Arr::isEmpty()
+ *
  * @method bool isAssoc(bool $strict = false)
+ * @see Arr::isAssoc()
+ *
  * @method bool isNumeric()
+ * @see Arr::isNumeric()
+ *
  * @method bool isUnique(bool $strict = false)
+ * @see Arr::isUnique()
+ *
  * @method bool isNested()
+ * @see Arr::isNested()
+ *
  * @method bool isArrayOfArrays()
+ * @see Arr::isArrayOfArrays()
+ *
+ * ---------------------------------------------------------------------------------
  *
  * @method ArrObj map(callable $callback, int $mode = Arr::MAP_ARRAY_KEY_VALUE)
+ * @see Arr::map()
+ *
  * @method ArrObj mapObjects(string $method, ...$args)
+ * @see Arr::mapObjects()
+ *
+ * ---------------------------------------------------------------------------------
  *
  * @method ArrObj filterByKeys(mixed $keys, bool $exclude = false)
+ * @see Arr::filterByKeys()
+ *
  * @method ArrObj filterObjects(string $method, ...$args)
+ * @see Arr::filterObjects()
+ *
+ * ---------------------------------------------------------------------------------
  *
  * @method ArrObj group(string|int $key)
+ * @see Arr::group()
+ *
  * @method ArrObj groupObjects(string $method, ...$args)
+ * @see Arr::groupObjects()
+ *
+ * ---------------------------------------------------------------------------------
  *
  * @method ArrObj orderByKeys(mixed $keys, bool $appendUnmatched = true)
+ * @see Arr::orderByKeys()
+ *
  * @method ArrObj sortByKeys(mixed $keys = null, bool $assoc = true)
+ * @see Arr::sortByKeys()
+ *
  * @method ArrObj sortObjects(string $method, ...$args)
+ * @see Arr::sortObjects()
+ *
+ * ---------------------------------------------------------------------------------
  *
  * @method ArrObj sum(array ...$arrays)
+ * @see Arr::sum()
+ *
  * @method ArrObj diffObjects(array $array, array ...$arrays)
+ * @see Arr::diffObjects()
+ *
  * @method ArrObj intersectObjects(array $array, array ...$arrays)
+ * @see Arr::intersectObjects()
+ *
+ * ---------------------------------------------------------------------------------
  *
  * @method ArrObj flatten(?int $depth = null, bool $assoc = false)
+ * @see Arr::flatten()
+ *
  * @method ArrObj flattenSingle()
+ * @see Arr::flattenSingle()
+ *
+ * ---------------------------------------------------------------------------------
  *
  * @method int getDepth()
+ * @see Arr::getDepth()
+ *
  * @method ArrObj clone()
+ * @see Arr::clone()
+ *
  * @method mixed random(int $count = 1)
+ * @see Arr::random()
+ *
  * @method ArrObj shuffle()
+ * @see Arr::shuffle()
+ *
  * @method ArrObj nth(int $A = 1, int $B = 0)
+ * @see Arr::nth()
+ *
  * @method ArrObj even()
+ * @see Arr::even()
+ *
  * @method ArrObj odd()
+ * @see Arr::odd()
+ *
+ * ---------------------------------------------------------------------------------
  *
  * @method string|int|null getFirstKey()
+ * @see Arr::getFirstKey()
+ *
  * @method string|int|null getLastKey()
+ * @see Arr::getLastKey()
+ *
  * @method mixed getFirstValue()
+ * @see Arr::getFirstValue()
+ *
  * @method mixed getLastValue()
+ * @see Arr::getLastValue()
+ *
+ * ---------------------------------------------------------------------------------
  */
 class ArrObj implements IteratorAggregate, ArrayAccess, Countable
 {
