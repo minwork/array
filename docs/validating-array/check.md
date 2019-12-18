@@ -2,9 +2,11 @@
 
 #### Definition
 
+{% code title="" %}
 ```php
 Arr::check(array $array, mixed|callable $condition, bool $strict = false): bool
 ```
+{% endcode %}
 
 #### Description
 

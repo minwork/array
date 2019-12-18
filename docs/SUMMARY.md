@@ -11,6 +11,10 @@
 * [clone](common-methods/clone.md)
 * [getKeysArray](common-methods/getkeysarray.md)
 
+## Object oriented methods
+
+* [General information](object-oriented-methods/general-information.md)
+
 ## Validating array
 
 * [check](validating-array/check.md)
