@@ -10,6 +10,8 @@ namespace Minwork\Helper;
 
 use ArrayAccess;
 use InvalidArgumentException;
+use Iterator;
+use IteratorAggregate;
 use ReflectionFunction;
 use ReflectionMethod;
 use Throwable;
@@ -58,6 +60,19 @@ class Arr
      * Preserve all arrays with highest nesting level as element values instead of unpacking them
      */
     const UNPACK_PRESERVE_ARRAY = 8;
+
+    /**
+     * Return value of array element matching find condition
+     */
+    const FIND_RETURN_VALUE = 'value';
+    /**
+     * Return key of array element matching find condition
+     */
+    const FIND_RETURN_KEY = 'key';
+    /**
+     * Return all values (preserving original keys) of array elements matching find condition
+     */
+    const FIND_RETURN_ALL = 'all';
 
     private const AUTO_INDEX_KEY = '[]';
     private const KEY_SEPARATOR = '.';
@@ -112,7 +127,7 @@ class Arr
 
         foreach ($keysArray as $key) {
             if (!array_key_exists($key, $tmp)) {
-                 return false;
+                return false;
             }
             $tmp = $tmp[$key];
         }
@@ -693,6 +708,34 @@ class Arr
     }
 
     /**
+     * Find array (or iterable object) element(s) that match specified condition
+     *
+     * @param array|Iterator|IteratorAggregate $array
+     * @param callable $condition Callable accepting one argument (current array element value) and returning truthy or falsy value
+     * @param string $return What type of result should be returned after finding desired element(s)
+     * @return mixed|mixed[] Either key, value or assoc array containing keys and values for elements matching specified condition. Returns null if element was not found, or empty array if FIND_RETURN_ALL mode was used.
+     */
+    public static function find($array, callable $condition, string $return = self::FIND_RETURN_VALUE)
+    {
+        $result = [];
+        foreach ($array as $key => $value) {
+            if (call_user_func($condition, $value)) {
+                switch ($return) {
+                    case self::FIND_RETURN_KEY:
+                        return $key;
+                    case self::FIND_RETURN_VALUE:
+                        return $value;
+                    case self::FIND_RETURN_ALL:
+                        $result[$key] = $value;
+                        break;
+                }
+            }
+        }
+
+        return $return === self::FIND_RETURN_ALL ? $result : null;
+    }
+
+    /**
      * Order associative array according to supplied keys order
      * Keys that are not present in $keys param will be appended to the end of an array preserving supplied order.
      * @param array $array
@@ -977,7 +1020,7 @@ class Arr
                     }
                 }
             }
-        } while(!empty($queue));
+        } while (!empty($queue));
 
         return $depth;
     }

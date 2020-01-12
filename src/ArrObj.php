@@ -6,6 +6,7 @@ use ArrayAccess;
 use ArrayIterator;
 use BadMethodCallException;
 use Countable;
+use Iterator;
 use IteratorAggregate;
 
 /**
@@ -75,6 +76,11 @@ use IteratorAggregate;
  *
  * @method ArrObj groupObjects(string $method, ...$args)
  * @see Arr::groupObjects()
+ *
+ * ---------------------------------------------------------------------------------
+ *
+ * @method ArrObj find(array|IteratorAggregate|Iterator $array, callable $condition, string $return)
+ * @see Arr::find()
  *
  * ---------------------------------------------------------------------------------
  *
@@ -166,6 +172,7 @@ class ArrObj implements IteratorAggregate, ArrayAccess, Countable
         'filterObjects',
         'group',
         'groupObjects',
+        'find',
         'orderByKeys',
         'sortByKeys',
         'sortObjects',

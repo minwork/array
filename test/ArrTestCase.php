@@ -16,6 +16,7 @@ class ArrTestCase extends TestCase
         'bool' => true,
         'float' => 1.0,
         'null' => null,
+        'callable' => 'boolval',
     ];
 
     /**

@@ -34,7 +34,15 @@ Advanced implementation of well known operations:
 ## Example of usage
 ```php
 // Set nested array value
-$array = Arr::set([], 'key1.key2.key3', 'my_value');
+$array = Arr::set([], 'key1.key2.key3', 'my_value'); 
+// Which is equivalent to
+[
+  'key1' => [
+    'key2' => [
+      'key3' => 'my_value'
+    ]
+  ]
+]
 
 // Get nested array value
 Arr::get($array, 'key1.key2') -> ['key3' => 'my_value']
@@ -46,6 +54,11 @@ Arr::has($array, 'key1.key2.key3') -> true
 Arr::map($array, function ($key, $value) {
    // Your code here
 });
+
+// Find array element
+Arr::find($array, function ($element) {
+  return Arr::get($element, 'key2.key3') === 'my_value';
+}) -> [ 'key2' => [ 'key3' => 'my_value'] ]
 
 // Chain few methods
 Arr::obj(['test' => 1, 'foo' => 'bar'])

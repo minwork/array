@@ -90,7 +90,6 @@ class ArrTest extends ArrTestCase
         $this->assertSame(['test'], $this->callMethod([$class, 'get'], $array, 'key1.key2.key3'));
         $this->assertSame('test', $this->callMethod([$class, 'get'], $array, 'key1.key2.key3.0'));
         $this->assertSame('default', $this->callMethod([$class, 'get'], $array, 'key1.key4.key2.key3', 'default'));
-        /** @noinspection PhpParamsInspection */
         $this->assertSame('default', $this->callMethod([$class, 'get'], new stdClass(), 'key1.key4.key2.key3', 'default'));
         $this->assertNull($this->callMethod([$class, 'get'], $array, 'key1.key4.key2.key3'));
 
@@ -821,6 +820,52 @@ class ArrTest extends ArrTestCase
                 3 => $object3
             ]
         ], $this->callMethod([$class, 'groupObjects'], ['a', 'b', 'c', $object3], 'test'));
+    }
+
+    /**
+     * @param array $array
+     * @dataProvider arrayProvider
+     */
+    public function testFind($array)
+    {
+        $elCount = count($array);
+        $randomElement = Arr::random($array);
+        $randomElementKey = array_search($randomElement, $array, true);
+        $randomElements = $elCount === 1 ? [$randomElementKey => $randomElement] : Arr::random($array, min(3, $elCount));
+        $callbackSingle = function ($value) use ($randomElement) {
+            return $value === $randomElement;
+        };
+        $callbackAll = function ($value) use ($randomElements) {
+            return in_array($value, $randomElements, true);
+        };
+        $callbackNotFound = function () {
+            return false;
+        };
+
+        // Default (value)
+        $this->assertSame($randomElement, Arr::find($array, $callbackSingle));
+
+        // Return value
+        $this->assertSame($randomElement, Arr::find($array, $callbackSingle, Arr::FIND_RETURN_VALUE));
+
+        // Return key
+        $this->assertSame($randomElementKey, Arr::find($array, $callbackSingle, Arr::FIND_RETURN_KEY));
+
+        // Return all
+        $this->assertSame($randomElements, Arr::find($array, $callbackAll, Arr::FIND_RETURN_ALL), "Elements " . print_r($randomElements, true));
+
+        // Not found (default - value)
+        $this->assertSame(null, Arr::find($array, $callbackNotFound));
+
+        // Not found (value)
+        $this->assertSame(null, Arr::find($array, $callbackNotFound, Arr::FIND_RETURN_VALUE));
+
+        // Not found (key)
+        $this->assertSame(null, Arr::find($array, $callbackNotFound, Arr::FIND_RETURN_KEY));
+
+        // Not found (all)
+        $this->assertSame([], Arr::find($array, $callbackNotFound, Arr::FIND_RETURN_ALL));
+
     }
 
     /**
