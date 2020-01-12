@@ -70,7 +70,7 @@ class Arr
      */
     const FIND_RETURN_KEY = 'key';
     /**
-     * Return all values (preserving original keys) of array elements matching find condition
+     * Return array of all values (preserving original keys) of array elements matching find condition
      */
     const FIND_RETURN_ALL = 'all';
 

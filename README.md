@@ -14,6 +14,7 @@ Advanced implementation of well known operations:
   * [Has](https://minwork.gitbook.io/array/common-methods/has)
   * [Map](https://minwork.gitbook.io/array/manipulating-array/mapping)
   * [Filter](https://minwork.gitbook.io/array/manipulating-array/filtering)
+  * [Find](https://minwork.gitbook.io/array/manipulating-array/finding)
   * [Group](https://minwork.gitbook.io/array/manipulating-array/grouping)
   * [Sort](https://minwork.gitbook.io/array/manipulating-array/sorting)
   * [Check](https://minwork.gitbook.io/array/validating-array/check)
