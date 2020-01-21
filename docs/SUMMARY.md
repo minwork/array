@@ -15,6 +15,20 @@
 
 * [General information](object-oriented-methods/general-information.md)
 
+## Traversing array
+
+* [Finding](traversing-array/finding.md)
+* [Iterating](traversing-array/iterating.md)
+
+## Manipulating array
+
+* [Mapping](manipulating-array/mapping.md)
+* [Filtering](manipulating-array/filtering.md)
+* [Grouping](manipulating-array/grouping.md)
+* [Sorting](manipulating-array/sorting.md)
+* [Computations](manipulating-array/computation.md)
+* [Flattening](manipulating-array/flattening.md)
+
 ## Validating array
 
 * [check](validating-array/check.md)
@@ -25,16 +39,6 @@
 * [isUnique](validating-array/isunique.md)
 * [isNumeric](validating-array/isnumeric.md)
 * [hasKeys](validating-array/haskeys.md)
-
-## Manipulating array
-
-* [Mapping](manipulating-array/mapping.md)
-* [Filtering](manipulating-array/filtering.md)
-* [Grouping](manipulating-array/grouping.md)
-* [Finding](manipulating-array/finding.md)
-* [Sorting](manipulating-array/sorting.md)
-* [Computations](manipulating-array/computation.md)
-* [Flattening](manipulating-array/flattening.md)
 
 ## Utility methods
 

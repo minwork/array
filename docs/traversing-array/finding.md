@@ -16,9 +16,9 @@ Find array \(or iterable object\) element\(s\) that match specified condition.
 
 | Constant name | Description |
 | :--- | :--- |
-| FIND\_RETURN\_VALUE | Return value of array element matching find condition |
-| FIND\_RETURN\_KEY | Return key of array element matching find condition |
-| FIND\_RETURN\_ALL | Return array of all values \(preserving original keys\) of array elements matching find condition |
+| FIND\_RETURN\_VALUE | Return first value of an array that match find condition |
+| FIND\_RETURN\_KEY | Return first key of an array that match find condition |
+| FIND\_RETURN\_ALL | Return array of all values \(preserving original keys\) that match find condition |
 
 #### Examples
 
