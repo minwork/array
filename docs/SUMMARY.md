@@ -15,16 +15,10 @@
 
 * [General information](object-oriented-methods/general-information.md)
 
-## Validating array
+## Traversing array
 
-* [check](validating-array/check.md)
-* [isEmpty](validating-array/isempty.md)
-* [isNested](validating-array/isnested.md)
-* [isArrayOfArrays](validating-array/isarrayofarrays.md)
-* [isAssoc](validating-array/isassoc.md)
-* [isUnique](validating-array/isunique.md)
-* [isNumeric](validating-array/isnumeric.md)
-* [hasKeys](validating-array/haskeys.md)
+* [Finding](traversing-array/finding.md)
+* [Iterating](traversing-array/iterating.md)
 
 ## Manipulating array
 
@@ -35,10 +29,16 @@
 * [Computations](manipulating-array/computation.md)
 * [Flattening](manipulating-array/flattening.md)
 
-## Traversing array
+## Validating array
 
-* [Finding](traversing-array/finding.md)
-* [Iterating](traversing-array/iterating.md)
+* [check](validating-array/check.md)
+* [isEmpty](validating-array/isempty.md)
+* [isNested](validating-array/isnested.md)
+* [isArrayOfArrays](validating-array/isarrayofarrays.md)
+* [isAssoc](validating-array/isassoc.md)
+* [isUnique](validating-array/isunique.md)
+* [isNumeric](validating-array/isnumeric.md)
+* [hasKeys](validating-array/haskeys.md)
 
 ## Utility methods
 
