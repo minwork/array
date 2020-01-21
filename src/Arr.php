@@ -47,6 +47,27 @@ class Arr
      */
     const MAP_ARRAY_VALUE_KEY = 8;
 
+    /**
+     * Iterate using callback in form of function($value)
+     */
+    const EACH_VALUE = 0;
+    /**
+     * Iterate using callback in form of function($key, $value)
+     */
+    const EACH_KEY_VALUE = 1;
+    /**
+     * Iterate using callback in form of function($value, $key1, $key2, ...)
+     */
+    const EACH_VALUE_KEYS_LIST = 2;
+    /**
+     * Iterate using callback in form of function(array $keys, $value)
+     */
+    const EACH_KEYS_ARRAY_VALUE = 3;
+    /**
+     * Iterate using callback in form of function($value, $key)
+     */
+    const EACH_VALUE_KEY = 4;
+
     const UNPACK_ALL = 1;
     /**
      * Preserve arrays with highest nesting level (if they are not assoc) as element values instead of unpacking them
@@ -581,6 +602,52 @@ class Arr
         }
 
         return $return;
+    }
+
+    /**
+     * Traverse through array or iterable object and call callback for each element (ignoring the result).<br/>
+     * <br/>
+     * <b>Warning:</b> For <tt>EACH_VALUE_KEYS_LIST</tt> and <tt>EACH_KEYS_ARRAY_VALUE</tt> modes <tt>$iterable</tt> MUST be an array.
+     *
+     * @param array|Iterator|IteratorAggregate $iterable Usually array, but can be an iterable object.
+     * @param callable $callback Callback function for each element of an iterable
+     * @param int $mode What parameters and in which order should <tt>$callback</tt> receive
+     * @return array|Iterator|IteratorAggregate Return unchanged input for chaining
+     */
+    public static function each($iterable, callable $callback, int $mode = self::EACH_VALUE)
+    {
+        switch ($mode) {
+            case self::EACH_KEY_VALUE:
+                foreach ($iterable as $key => $value) {
+                    $callback($key, $value);
+                }
+                break;
+            case self::EACH_VALUE_KEY:
+                foreach ($iterable as $key => $value) {
+                    $callback($value, $key);
+                }
+                break;
+            case self::EACH_VALUE_KEYS_LIST:
+                foreach (self::unpack($iterable) as $dotKeys => $value) {
+                    $keys = self::getKeysArray($dotKeys);
+                    $callback($value, ...$keys);
+                }
+                break;
+            case self::EACH_KEYS_ARRAY_VALUE:
+                foreach (self::unpack($iterable) as $dotKeys => $value) {
+                    $keys = self::getKeysArray($dotKeys);
+                    $callback($keys, $value);
+                }
+                break;
+            case self::EACH_VALUE:
+            default:
+                foreach ($iterable as $value) {
+                    $callback($value);
+                }
+                break;
+        }
+
+        return $iterable;
     }
 
     /**

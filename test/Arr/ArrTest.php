@@ -676,6 +676,52 @@ class ArrTest extends ArrTestCase
 
     /**
      * @param $class string|ArrObj
+     * @dataProvider arrayClassProvider
+     */
+    public function testEach($class)
+    {
+        foreach ($this->arrayProvider() as [$array]) {
+
+            // Check both pure array and iterable object
+            foreach ([$array, new ArrayObject($array)] as $iterable) {
+                // Just value
+                $index = 0;
+                $values = array_values($iterable instanceof ArrayObject ? $iterable->getArrayCopy() : $iterable);
+                $this->callMethod([$class, 'each'], $iterable, function ($value) use ($values, &$index) {
+                    $this->assertSame($values[$index++], $value);
+                }, Arr::EACH_VALUE);
+
+                // Also check default
+                $index = 0;
+                $this->callMethod([$class, 'each'], $iterable, function ($value) use ($values, &$index) {
+                    $this->assertSame($values[$index++], $value);
+                });
+
+                // Key, Value
+                $this->callMethod([$class, 'each'], $iterable, function ($key, $value) use ($iterable) {
+                    $this->assertSame($iterable[$key], $value);
+                }, Arr::EACH_KEY_VALUE);
+
+                // Value, Key
+                $this->callMethod([$class, 'each'], $iterable, function ($value, $key) use ($iterable) {
+                    $this->assertSame($iterable[$key], $value);
+                }, Arr::EACH_VALUE_KEY);
+            }
+
+            // Value, Keys list
+            $this->callMethod([$class, 'each'], $array, function ($value, ...$keys) use ($class, $array) {
+                $this->assertSame($this->callMethod([$class, 'get'], $array, $keys), $value);
+            }, Arr::EACH_VALUE_KEYS_LIST);
+
+            // Keys array, Value
+            $this->callMethod([$class, 'each'], $array, function ($keys, $value) use ($class, $array) {
+                $this->assertSame($this->callMethod([$class, 'get'], $array, $keys), $value);
+            }, Arr::EACH_KEYS_ARRAY_VALUE);
+        }
+    }
+
+    /**
+     * @param $class string|ArrObj
      *
      * @dataProvider arrayClassProvider
      */

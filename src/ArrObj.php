@@ -63,6 +63,11 @@ use IteratorAggregate;
  *
  * ---------------------------------------------------------------------------------
  *
+ * @method ArrObj each(callable $callback, int $mode = Arr::EACH_VALUE)
+ * @see Arr::each()
+ *
+ * ---------------------------------------------------------------------------------
+ *
  * @method ArrObj filterByKeys(mixed $keys, bool $exclude = false)
  * @see Arr::filterByKeys()
  *
@@ -168,6 +173,7 @@ class ArrObj implements IteratorAggregate, ArrayAccess, Countable
         'isArrayOfArrays',
         'map',
         'mapObjects',
+        'each',
         'filterByKeys',
         'filterObjects',
         'group',
@@ -199,6 +205,7 @@ class ArrObj implements IteratorAggregate, ArrayAccess, Countable
         'remove',
         'map',
         'mapObjects',
+        'each',
         'filterByKeys',
         'filterObjects',
         'group',

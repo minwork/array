@@ -2,6 +2,7 @@
 namespace Test;
 
 use InvalidArgumentException;
+use Minwork\Helper\Arr;
 use Minwork\Helper\ArrObj;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -157,7 +158,7 @@ class ArrTestCase extends TestCase
     public function arrayClassProvider(): array
     {
         return [
-            ['\Minwork\Helper\Arr'],
+            [Arr::class],
             [new ArrObj()],
         ];
     }
