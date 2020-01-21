@@ -15,9 +15,11 @@ Arr::obj(array|ArrayAccess $array = [])
 
 For chaining just call standard `Arr` methods without first parameter \(array or ArrayAccess object\).
 
-As a convenience `ArrObj` contains PHPDoc definitions for every available method, so you don't need to guess their parameters and quickly jump to the corresponding `Arr` method.
+As a convenience `ArrObj` contains PHPDoc definitions for every available method, so you don't need to guess their parameters.
 
-To obtain array from object just call `getArray()` as the final method of a chain.
+Also you can quickly jump to the corresponding `Arr` method by using `@see` tag.
+
+To obtain array from object just call `getArray()` as the final method in chain.
 
 ### Examples
 

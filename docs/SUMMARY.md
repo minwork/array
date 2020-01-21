@@ -31,10 +31,14 @@
 * [Mapping](manipulating-array/mapping.md)
 * [Filtering](manipulating-array/filtering.md)
 * [Grouping](manipulating-array/grouping.md)
-* [Finding](manipulating-array/finding.md)
 * [Sorting](manipulating-array/sorting.md)
 * [Computations](manipulating-array/computation.md)
 * [Flattening](manipulating-array/flattening.md)
+
+## Traversing array
+
+* [Finding](traversing-array/finding.md)
+* [Iterating](traversing-array/iterating.md)
 
 ## Utility methods
 
