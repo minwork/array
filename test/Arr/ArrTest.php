@@ -149,7 +149,7 @@ class ArrTest extends ArrTestCase
 
         $this->assertSame([[['test']]], $this->callMethod([$class, 'set'], [], '[].[].[]', 'test'));
         $this->assertSame([[[[]]]], $this->callMethod([$class, 'set'], [], '[].[].[]', []));
-        $this->assertSame([[[[]]]], $this->callMethod([$class, 'set'], [], ['[]','[]','[]'], []));
+        $this->assertSame([[[[]]]], $this->callMethod([$class, 'set'], [], ['[]', '[]', '[]'], []));
         $this->assertSame([], $this->callMethod([$class, 'set'], [], [], 'test'));
         $this->assertSame([], $this->callMethod([$class, 'set'], [], [null], 'test'));
 
@@ -661,8 +661,7 @@ class ArrTest extends ArrTestCase
         $this->assertSame(['test', 2, 4, '2'], $this->callMethod([$class, 'mapObjects'], $array, 'test', 2));
         $this->assertSame([], $this->callMethod([$class, 'mapObjects'], [], 'test'));
 
-        $object = new class()
-        {
+        $object = new class() {
             function test($arg = 0)
             {
                 return 1 + $arg;
@@ -742,6 +741,35 @@ class ArrTest extends ArrTestCase
         $this->assertSame(['a' => 1, 'b' => 2], $this->callMethod([$class, 'filterByKeys'], $array, [0, 4, 3], true));
         $this->assertSame($array, $this->callMethod([$class, 'filterByKeys'], $array, [], true));
         $this->assertSame($array, $this->callMethod([$class, 'filterByKeys'], $array, [null, 0], true));
+    }
+
+    /**
+     * @param $class string|ArrObj
+     *
+     * @dataProvider arrayClassProvider
+     */
+    public function testFilter($class)
+    {
+        $callback1 = function ($value) {
+            return boolval($value);
+        };
+        $callback2 = function ($value) {
+            return !$value;
+        };
+        $callback3 = function ($value, $key) {
+            return $key == $value;
+        };
+        $callback4 = function ($key) {
+            return boolval($key);
+        };
+
+        foreach ($this->arrayProvider() as [$array]) {
+            $this->assertSame(array_filter($array), $this->callMethod([$class, 'filter'], $array));
+            $this->assertSame(array_filter($array, $callback1), $this->callMethod([$class, 'filter'], $array, $callback1));
+            $this->assertSame(array_filter($array, $callback2), $this->callMethod([$class, 'filter'], $array, $callback2));
+            $this->assertSame(array_filter($array, $callback3, ARRAY_FILTER_USE_BOTH), $this->callMethod([$class, 'filter'], $array, $callback3, ARRAY_FILTER_USE_BOTH));
+            $this->assertSame(array_filter($array, $callback4, ARRAY_FILTER_USE_KEY), $this->callMethod([$class, 'filter'], $array, $callback4, ARRAY_FILTER_USE_KEY));
+        }
     }
 
     /**
@@ -1019,7 +1047,8 @@ class ArrTest extends ArrTestCase
         $object1 = new class() {
             public $i = 1;
 
-            public function getValue(bool $reverse = false) {
+            public function getValue(bool $reverse = false)
+            {
                 return $reverse ? 1 / $this->i : $this->i;
             }
         };
@@ -1039,7 +1068,7 @@ class ArrTest extends ArrTestCase
         $array = $proto;
 
         $this->assertSame([1, 2, 3, 4, 5], $this->callMethod([$class, 'mapObjects'], $array, 'getValue'));
-        $this->assertSame([1, 1/2, 1/3, 1/4, 1/5], $this->callMethod([$class, 'mapObjects'], $array, 'getValue', true));
+        $this->assertSame([1, 1 / 2, 1 / 3, 1 / 4, 1 / 5], $this->callMethod([$class, 'mapObjects'], $array, 'getValue', true));
 
         // Ensure order is not the same
         do {
@@ -1465,8 +1494,7 @@ class ArrTest extends ArrTestCase
     {
         $object = new stdClass();
         $object2 = new ArrayObject();
-        $object3 = new class()
-        {
+        $object3 = new class() {
             public $counter = 1;
 
             function __clone()

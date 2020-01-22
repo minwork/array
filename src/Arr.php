@@ -672,6 +672,28 @@ class Arr
     }
 
     /**
+     * Wrapper around PHP built-in <b>array_filter</b> method.<br/>
+     * <br/>
+     * Iterates over each value in the array passing them to the <b>callback</b> function. If the <b>callback</b> function returns true, the current value from <b>array</b> is returned into the result array. Array keys are preserved.
+     *
+     * @param array $array The array to iterate over
+     * @param callable|null $callback <p>[optional]</p>
+     * <p>The callback function to use</p>
+     * <p>If no callback is supplied, all entries of input equal to false (see converting to boolean) will be removed.</p>
+     * @param int $flag <p>[optional]</p>
+     * <p>Flag determining what arguments are sent to callback:</p>
+     * <ul>
+     * <li><b>ARRAY_FILTER_USE_KEY</b> - pass key as the only argument to callback instead of the value</li>
+     * <li><b>ARRAY_FILTER_USE_BOTH</b> - pass both value and key as arguments to callback instead of the value</li>
+     * @return array
+     * @see array_filter()
+     */
+    public static function filter(array $array, ?callable $callback = null, int $flag = 0): array
+    {
+        return is_null($callback) ? array_filter($array) : array_filter($array, $callback, $flag);
+    }
+
+    /**
      * Filter objects array using return value of specified method.<br>
      * <br>
      * This method also filter values other than objects by standard boolean comparison
