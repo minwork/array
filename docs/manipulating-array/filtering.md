@@ -1,5 +1,21 @@
 # Filtering
 
+## filter
+
+#### Definition
+
+```php
+Arr::filter(array $array, ?callable $callback = null, int $flag = 0): array
+```
+
+#### Description
+
+Wrapper around PHP built-in [array\_filter](https://www.php.net/manual/en/function.array-filter.php) method to allow [chaining](https://minwork.gitbook.io/array/object-oriented-methods/general-information#chaining) in `ArrObj`
+
+#### Examples
+
+See [array\_filter examples](https://www.php.net/manual/en/function.array-filter.php#refsect1-function.array-filter-examples)
+
 ## filterByKeys
 
 #### Definition
