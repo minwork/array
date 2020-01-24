@@ -32,7 +32,7 @@ use IteratorAggregate;
  *
  * ---------------------------------------------------------------------------------
  *
- * @method bool check(mixed|callable $condition, bool $strict = false)
+ * @method bool check(mixed|callable $condition, int $flag = 0)
  * @see Arr::check()
  *
  * @method bool isEmpty()

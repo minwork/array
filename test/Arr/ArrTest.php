@@ -376,6 +376,7 @@ class ArrTest extends ArrTestCase
     {
         $array1 = ['test', 'test', 'test'];
         $array2 = [1, 1, 1];
+        $array3 = [false, 0, true, 1, '2', 'three'];
 
         $testClass = new TestCheckMethod();
 
@@ -392,33 +393,80 @@ class ArrTest extends ArrTestCase
 
         $this->assertFalse($this->callMethod([$class, 'check'], $array1, [$testClass, 'testOneArg']));
         $this->assertFalse($this->callMethod([$class, 'check'], $array1, [$testClass, 'testOneArg'], true));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array1, [$testClass, 'testOneArg'], Arr::CHECK_STRICT));
 
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testOneArg']));
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testOneArg'], true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testOneArg'],  Arr::CHECK_STRICT));
 
         $this->assertTrue($this->callMethod([$class, 'check'], $array1, [$testClass, 'testTwoArg']));
         $this->assertTrue($this->callMethod([$class, 'check'], $array1, [$testClass, 'testTwoArg'], true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array1, [$testClass, 'testTwoArg'],  Arr::CHECK_STRICT));
 
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testTwoArg']));
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testTwoArg'], true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testTwoArg'],  Arr::CHECK_STRICT));
 
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'TestCheckMethod::testStaticOneArg'));
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'TestCheckMethod::testStaticTwoArg'));
 
+
+
         $this->assertTrue($this->callMethod([$class, 'check'], $array1, 'test', false));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array1, 'test', 0));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array1, 'test', Arr::CHECK_SOME));
+
         $this->assertTrue($this->callMethod([$class, 'check'], $array1, 'test', true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array1, 'test',  Arr::CHECK_STRICT));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array1, 'test',  Arr::CHECK_STRICT | Arr::CHECK_SOME));
+
         $this->assertFalse($this->callMethod([$class, 'check'], $array1, 'test1', false));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array1, 'test1', 0));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array1, 'test1', Arr::CHECK_SOME));
+
         $this->assertFalse($this->callMethod([$class, 'check'], $array1, 'test1', true));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array1, 'test1',  Arr::CHECK_STRICT));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array1, 'test1',  Arr::CHECK_STRICT | Arr::CHECK_SOME));
+
+
 
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, '1', false));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, '1', 0));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, '1', Arr::CHECK_SOME));
+
         $this->assertFalse($this->callMethod([$class, 'check'], $array2, '1', true));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array2, '1', Arr::CHECK_STRICT));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array2, '1', Arr::CHECK_STRICT | Arr::CHECK_SOME));
+
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, 1, false));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 1, 0));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 1, Arr::CHECK_SOME));
+
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, 1, true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 1,  Arr::CHECK_STRICT));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 1,  Arr::CHECK_STRICT | Arr::CHECK_SOME));
+
+
+        $this->assertFalse($this->callMethod([$class, 'check'], $array3, '1'));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array3, '1', Arr::CHECK_SOME));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array3, '1', Arr::CHECK_STRICT | Arr::CHECK_SOME));
+
+        $this->assertFalse($this->callMethod([$class, 'check'], $array3, 1));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array3, 1, Arr::CHECK_SOME));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array3, 1, Arr::CHECK_STRICT | Arr::CHECK_SOME));
+
 
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'is_int'));
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'is_int', true));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'is_int',  Arr::CHECK_STRICT));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'is_int',  Arr::CHECK_STRICT | Arr::CHECK_SOME));
+
         $this->assertFalse($this->callMethod([$class, 'check'], $array2, 'is_string'));
         $this->assertFalse($this->callMethod([$class, 'check'], $array2, 'is_string', true));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array2, 'is_string',  Arr::CHECK_STRICT));
+        $this->assertFalse($this->callMethod([$class, 'check'], $array2, 'is_string',  Arr::CHECK_STRICT | Arr::CHECK_SOME));
+
+
 
         $this->assertFalse($this->callMethod([$class, 'check'], $array1, ['test']));
         $this->assertFalse($this->callMethod([$class, 'check'], $array2, [1]));

@@ -95,6 +95,17 @@ class Arr
      */
     const FIND_RETURN_ALL = 'all';
 
+    /**
+     * <p>In case <b>condition</b> is callable check if it result is exactly <tt>true</tt></p>
+     * <p>If <b>condition</b> is not callable, then check if array element is equal to it both by value and type</p>
+     */
+    const CHECK_STRICT = 1;
+
+    /**
+     * Check will return <tt>true</tt> on first array element that match specified <b>condition</b>
+     */
+    const CHECK_SOME = 2;
+
     private const AUTO_INDEX_KEY = '[]';
     private const KEY_SEPARATOR = '.';
 
@@ -326,6 +337,76 @@ class Arr
         return self::_unpack($array, $mode);
     }
 
+    /**
+     * Check if every element of an array meets specified condition
+     *
+     * @param array $array
+     * @param mixed|callable $condition <p>Either callable performing check or a value which every array element will be compared to.</p>
+     * <p><b>Callable</b> is supplied with either only element value or pair of element value and key. Arguments amount depends on <b>callable</b> definition and is dynamically resolved using reflection (defaults to 2 - value and key)</p>
+     * @param int $flag <p>[optional]</p>
+     * <p>Determines how <b>condition</b> is processed (see Arr::CHECK_* constants for more info)</p>
+     * <ul>
+     * <li><b>CHECK_STRICT</b> - compare using <b>condition</b> by both value and type</li>
+     * <li><b>CHECK_SOME</b> - return <tt>true</tt> if any of array elements meet specified <b>condition</b></li>
+     * </ul>
+     * @return bool
+     * @see Arr::CHECK_STRICT
+     * @see Arr::CHECK_SOME
+     * @see ReflectionMethod::getNumberOfParameters()
+     * @see ReflectionFunction::getNumberOfParameters()
+     */
+    public static function check(array $array, $condition, int $flag = 0): bool
+    {
+        if (is_callable($condition)) {
+            try {
+                $reflection = is_array($condition) ?
+                    new ReflectionMethod($condition[0], $condition[1]) :
+                    new ReflectionMethod($condition);
+
+                $paramsCount = $reflection->getNumberOfParameters();
+            } catch (Throwable $e) {
+                try {
+                    $reflection = new ReflectionFunction($condition);
+                    $paramsCount = $reflection->getNumberOfParameters();
+                } catch (Throwable $exception) { // @codeCoverageIgnore
+                    $paramsCount = 2; // @codeCoverageIgnore
+                }
+            }
+        }
+
+        $checkStrict = $flag & self::CHECK_STRICT;
+        $checkSome = $flag & self::CHECK_SOME;
+
+        foreach ($array as $key => $value) {
+            if (is_callable($condition)) {
+                /** @var int $paramsCount */
+                $result = $paramsCount == 1 ? call_user_func($condition, $value) : call_user_func($condition, $value, $key);
+
+                if ($checkStrict ? $result === true : $result) {
+                    if ($checkSome) {
+                        return true;
+                    }
+                } else {
+                    if (!$checkSome) {
+                        return false;
+                    }
+                }
+            } else {
+                if ($checkStrict ? $value === $condition : $value == $condition) {
+                    if ($checkSome) {
+                        return true;
+                    }
+                } else {
+                    if (!$checkSome) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return $checkSome ? false : true;
+    }
+
     private static function _unpack(array $array, int $mode = self::UNPACK_ALL, array $keys = []): array
     {
         $result = [];
@@ -357,51 +438,6 @@ class Arr
      |    ******************************************************************************    |
      | Flexible check method and various specific checks                                    |
     \*--------------------------------------------------------------------------------------*/
-
-    /**
-     * Check if every element of an array meets specified condition
-     *
-     * @param array $array
-     * @param mixed|callable $condition Can be either single value to compare every array value to or callable (which takes value as first argument and key as second) that performs check
-     * @param bool $strict In case $condition is callable check if it result is exactly <code>true</code> otherwise if it is equal both by value and type to supplied $condition
-     * @return bool
-     */
-    public static function check(array $array, $condition, bool $strict = false): bool
-    {
-        if (is_callable($condition)) {
-            try {
-                $reflection = is_array($condition) ?
-                    new ReflectionMethod($condition[0], $condition[1]) :
-                    new ReflectionMethod($condition);
-
-                $paramsCount = $reflection->getNumberOfParameters();
-            } catch (Throwable $e) {
-                try {
-                    $reflection = new ReflectionFunction($condition);
-                    $paramsCount = $reflection->getNumberOfParameters();
-                } catch (Throwable $exception) { // @codeCoverageIgnore
-                    $paramsCount = 2; // @codeCoverageIgnore
-                }
-            }
-        }
-
-        foreach ($array as $key => $value) {
-            if (is_callable($condition)) {
-                /** @var int $paramsCount */
-                $result = $paramsCount == 1 ? call_user_func($condition, $value) : call_user_func($condition, $value, $key);
-
-                if ($strict ? $result !== true : !$result) {
-                    return false;
-                }
-            } else {
-                if ($strict ? $value !== $condition : $value != $condition) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
 
     /**
      * Recursively check if all of array values match empty condition
