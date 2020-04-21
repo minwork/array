@@ -3,13 +3,13 @@
 #### Definition
 
 ```php
-Arr::setNestedElement(array $array, mixed $keys, mixed $value): array
+Arr::setNestedElement(array|ArrayAccess $array, mixed $keys, mixed $value): array|ArrayAccess 
 ```
 
 #### Aliases
 
 ```php
-set(array $array, $keys, $value) -> setNestedElement(array $array, $keys, $value)
+set(array|ArrayAccess $array, $keys, $value) -> setNestedElement(array|ArrayAccess $array, $keys, $value)
 ```
 
 #### Description
