@@ -186,6 +186,35 @@ class ArrTest extends ArrTestCase
         $this->assertSame(Arr::setNestedElement([], '[].[].[]', 'test'), Arr::set([], '[].[].[]', 'test'));
         $this->assertSame(Arr::setNestedElement($array, 'test.test2.test3', 'abc'), Arr::set($array, 'test.test2.test3', 'abc'));
         $this->assertSame(Arr::setNestedElement($array, 'key1.key2', ['key3' => 'test']), Arr::set($array, 'key1.key2', ['key3' => 'test']));
+
+        // Test ArrayAccess
+
+        $obj3 = new ArrayObject([
+            'c' => [
+                'd' => 1,
+            ],
+        ]);
+        $array = [
+            'test' => [
+                'a' => [
+                    'b' => $obj3,
+                    'test2'
+                ],
+            ],
+        ];
+
+        $array = $this->callMethod([$class, 'set'], $array, 'test.a.b.c.d', 2);
+        $this->assertSame(2, $array['test']['a']['b']['c']['d']);
+
+        $array = $this->callMethod([$class, 'set'], $array, 'test.a.b.foo', 'bar');
+        $this->assertSame('bar', $array['test']['a']['b']['foo']);
+
+        $array = $this->callMethod([$class, 'set'], $array, 'test.a.b.x.[]', 'xyz');
+        $this->assertSame('xyz', $array['test']['a']['b']['x'][0]);
+
+        // Test pure array object set
+        $obj3 = $this->callMethod([$class, 'set'], $obj3, 'c.[].test', true);
+        $this->assertSame(true, $obj3['c'][0]['test']);
     }
 
     /**

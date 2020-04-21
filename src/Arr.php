@@ -230,13 +230,13 @@ class Arr
     /**
      * Alias of Arr::setNestedElement
      *
-     * @param array $array
+     * @param array|ArrayAccess $array Array or object implementing array access to set element on
      * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
      * @param mixed $value Value to set
      * @return array Copy of an array with element set
      * @see Arr::setNestedElement()
      */
-    public static function set(array $array, $keys, $value): array
+    public static function set($array, $keys, $value): array
     {
         return self::setNestedElement($array, $keys, $value);
     }
@@ -244,13 +244,13 @@ class Arr
     /**
      * Set array element specified by keys to the desired value (create missing keys if necessary)
      *
-     * @param array $array
+     * @param array|ArrayAccess $array Array or object implementing array access to set element on
      * @param mixed $keys Keys needed to access desired array element (for possible formats see getKeysArray method)
      * @param mixed $value Value to set
      * @return array Copy of an array with element set
      * @see Arr::getKeysArray()
      */
-    public static function setNestedElement(array $array, $keys, $value): array
+    public static function setNestedElement($array, $keys, $value): array
     {
         $result = $array;
         $keysArray = self::getKeysArray($keys);
