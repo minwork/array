@@ -1,5 +1,4 @@
 <?php
-
 use Minwork\Helper\Arr;
 use Minwork\Helper\ArrObj;
 use PHPUnit\Framework\Error\Deprecated;
