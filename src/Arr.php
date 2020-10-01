@@ -158,10 +158,12 @@ class Arr
         $tmp = $array;
 
         foreach ($keysArray as $key) {
-            if (!array_key_exists($key, $tmp)) {
+            if (!\is_array($tmp) || !array_key_exists($key, $tmp)) {
                 return false;
             }
-            $tmp = $tmp[$key];
+            if (!empty($tmp[$key])) {
+                $tmp = $tmp[$key];
+            }
         }
 
         return true;
