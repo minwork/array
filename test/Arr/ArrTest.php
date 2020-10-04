@@ -37,7 +37,8 @@ class ArrTest extends ArrTestCase
                 [
                     'test6' => 'def'
                 ],
-                'test7' => []
+                'test7' => [],
+                'test8' => null,
             ],
         ];
 
@@ -56,7 +57,8 @@ class ArrTest extends ArrTestCase
         $this->assertFalse($this->callMethod([$class, 'has'], $array, 'test.test2.test4'));
 
         $this->assertFalse($this->callMethod([$class, 'has'], $array, 'test.test2.test3.foo'));
-        $this->assertFalse($this->callMethod([$class, 'has'], $array, 'test.test7.bar'));
+        $this->assertFalse($this->callMethod([$class, 'has'], $array, 'test.test7.foo'));
+        $this->assertFalse($this->callMethod([$class, 'has'], $array, 'test.test8.foo'));
         $this->assertFalse($this->callMethod([$class, 'has'], $array, '1.2.3'));
     }
 
