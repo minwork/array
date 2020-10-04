@@ -1,8 +1,13 @@
 <?php
+namespace Minwork\Helper\Tests\Arr;
+
+use ArrayObject;
+use InvalidArgumentException;
 use Minwork\Helper\Arr;
 use Minwork\Helper\ArrObj;
+use Minwork\Helper\Tests\ArrTestCase;
 use PHPUnit\Framework\Error\Deprecated;
-use Test\ArrTestCase;
+use stdClass;
 
 class ArrTest extends ArrTestCase
 {
@@ -442,8 +447,8 @@ class ArrTest extends ArrTestCase
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testTwoArg'], true));
         $this->assertTrue($this->callMethod([$class, 'check'], $array2, [$testClass, 'testTwoArg'],  Arr::CHECK_STRICT));
 
-        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'TestCheckMethod::testStaticOneArg'));
-        $this->assertTrue($this->callMethod([$class, 'check'], $array2, 'TestCheckMethod::testStaticTwoArg'));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, [TestCheckMethod::class, 'testStaticOneArg']));
+        $this->assertTrue($this->callMethod([$class, 'check'], $array2, [TestCheckMethod::class, 'testStaticTwoArg']));
 
 
 
@@ -707,15 +712,10 @@ class ArrTest extends ArrTestCase
         $this->expectException(Deprecated::class);
         $this->expectExceptionCode(E_USER_DEPRECATED);
 
-        /** @noinspection PhpParamsInspection */
         $this->assertSame(['0a', '1b', '2c'], Arr::map($funcKeyVal, $array));
-        /** @noinspection PhpParamsInspection */
         $this->assertSame(['0a', '1b', '2c'], Arr::map($funcValKey, $array, Arr::MAP_ARRAY_VALUE_KEY));
-        /** @noinspection PhpParamsInspection */
         $this->assertSame([], Arr::map($funcKeyVal, []));
-        /** @noinspection PhpParamsInspection */
         $this->assertSame([], Arr::map($funcValKey, [], Arr::MAP_ARRAY_VALUE_KEY));
-        /** @noinspection PhpParamsInspection */
         $this->assertSame(range(0, 2), Arr::map(function ($key) {
             return $key;
         }, $array));
@@ -983,7 +983,7 @@ class ArrTest extends ArrTestCase
      * @param array $array
      * @dataProvider arrayProvider
      */
-    public function testFind($array)
+    public function testFind(array $array)
     {
         $elCount = count($array);
         $randomElement = Arr::random($array);

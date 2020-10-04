@@ -1,5 +1,5 @@
 <?php
-namespace Test;
+namespace Minwork\Helper\Tests;
 
 use InvalidArgumentException;
 use Minwork\Helper\Arr;

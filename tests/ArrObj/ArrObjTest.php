@@ -1,8 +1,12 @@
 <?php
+namespace Minwork\Helper\Tests\ArrObj;
 
+use ArrayObject;
+use BadMethodCallException;
 use Minwork\Helper\Arr;
 use Minwork\Helper\ArrObj;
-use Test\ArrTestCase;
+use Minwork\Helper\Tests\ArrTestCase;
+use ReflectionException;
 
 class ArrObjTest extends ArrTestCase
 {

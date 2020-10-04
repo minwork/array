@@ -341,7 +341,7 @@ class Arr
      * Check if every element of an array meets specified condition
      *
      * @param array $array
-     * @param mixed|callable $condition <p>Either callable performing check or a value which every array element will be compared to.</p>
+     * @param mixed $condition <p>Either callable performing check or a value which every array element will be compared to.</p>
      * <p><b>Callable</b> is supplied with either only element value or pair of element value and key. Arguments amount depends on <b>callable</b> definition and is dynamically resolved using reflection (defaults to 2 - value and key)</p>
      * @param int $flag <p>[optional]</p>
      * <p>Determines how <b>condition</b> is processed (see Arr::CHECK_* constants for more info)</p>
@@ -379,7 +379,6 @@ class Arr
 
         foreach ($array as $key => $value) {
             if (is_callable($condition)) {
-                /** @var int $paramsCount */
                 $result = $paramsCount == 1 ? call_user_func($condition, $value) : call_user_func($condition, $value, $key);
 
                 if ($checkStrict ? $result === true : $result) {
@@ -442,7 +441,7 @@ class Arr
     /**
      * Recursively check if all of array values match empty condition
      *
-     * @param array $array
+     * @param array|ArrayAccess $array
      * @return boolean
      */
     public static function isEmpty($array): bool
@@ -566,8 +565,8 @@ class Arr
     /**
      * Applies a callback to the elements of given array
      *
-     * @param array $array
-     * @param callable $callback Callback to run for each element of array
+     * @param array|callable $array
+     * @param callable|array $callback Callback to run for each element of array
      * @param int $mode Determines callback arguments order and format<br>
      *   <br>
      *   MAP_ARRAY_KEY_VALUE -> callback($key, $value)<br>
@@ -1094,7 +1093,7 @@ class Arr
      *
      * @param mixed $var
      * @param int $flag Set flag(s) to preserve specific values from being converted to array (see Arr::FORCE_ARRAY_ constants)
-     * @return array
+     * @return array|ArrayAccess
      */
     public static function forceArray($var, int $flag = self::FORCE_ARRAY_ALL)
     {
