@@ -274,34 +274,57 @@ class ArrObj implements IteratorAggregate, ArrayAccess, Countable
         return $this;
     }
 
-    public function offsetExists($offset)
+    /**
+     * @param mixed $offset
+     * @return bool
+     */
+    public function offsetExists($offset): bool
     {
         return array_key_exists($offset, $this->array);
     }
 
-    public function offsetGet($offset)
+    /**
+     * @param mixed $offset
+     * @return mixed|null
+     */
+    #[\ReturnTypeWillChange] public function offsetGet($offset)
     {
         return $this->array[$offset] ?? null;
     }
 
-    public function offsetSet($offset, $value)
+    /**
+     * @param mixed $offset
+     * @param mixed $value
+     * @return void
+     */
+    public function offsetSet($offset, $value): void
     {
-        return $this->array[$offset] = $value;
+        $this->array[$offset] = $value;
     }
 
-    public function offsetUnset($offset)
+    /**
+     * @param mixed $offset
+     * @return void
+     */
+    public function offsetUnset($offset): void
     {
         if (isset($this->array[$offset])) {
             unset($this->array[$offset]);
         }
     }
 
-    public function getIterator()
+    /**
+     * @return ArrayIterator
+     */
+    public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->array);
     }
 
-    public function count()
+    /**
+     * @return int
+     */
+    public function count(): int
     {
         return count($this->array);
     }
