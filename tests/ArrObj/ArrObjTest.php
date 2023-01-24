@@ -13,7 +13,7 @@ class ArrObjTest extends ArrTestCase
     /** @var ArrObj */
     private $obj;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->obj = new ArrObj();
     }
